@@ -39,8 +39,8 @@ Item {
 
     Plugin {
         id: mapPlugin
-        //name: "maplibregl"
-        name: "osm"
+        name: "maplibregl"
+        //name: "osm"
 
         PluginParameter {
             name: "maplibregl.mapping.additional_style_urls"

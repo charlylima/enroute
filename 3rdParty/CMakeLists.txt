@@ -28,3 +28,11 @@ add_subdirectory(KDSingleApplication
 # For simplicity, we do not build the subset library, but include the source files
 # into the enroute target. This avoids problems on iOS and saves us the overhead of
 # finding and loading the library at runtime.
+
+#
+# MapLibreGL
+# https://github.com/maplibre/maplibre-native-qt
+# https://github.com/maplibre/maplibre-native-qt/pull/26
+# https://github.com/ntadej/maplibre-native-qt/tree/qt-65
+#
+add_subdirectory(maplibre-native-qt)
