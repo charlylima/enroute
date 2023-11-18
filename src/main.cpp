@@ -65,6 +65,40 @@ auto main(int argc, char *argv[]) -> int
     // It seems that MapBoxGL does not work well with threaded rendering, so we disallow that.
     qputenv("QSG_RENDER_LOOP", "basic");
 
+    // Install Log Message Handler for Android to forward qDebug() to __android_log_write()
+#if defined(Q_OS_ANDROID)
+    qInstallMessageHandler([](QtMsgType type, const QMessageLogContext &context, const QString &msg)
+    {
+        // add context info to msg
+        QString message;
+        if (context.file)
+        {
+            message = QStringLiteral("%1:%2: %s").arg(context.file).arg(context.line).arg(msg);
+        }
+
+        QByteArray localMsg = message.toLocal8Bit();
+        switch (type)
+        {
+        case QtDebugMsg:
+            __android_log_write(ANDROID_LOG_DEBUG, "enroute", localMsg.constData());
+            break;
+        case QtInfoMsg:
+            __android_log_write(ANDROID_LOG_INFO, "enroute", localMsg.constData());
+            break;
+        case QtWarningMsg:
+            __android_log_write(ANDROID_LOG_WARN, "enroute", localMsg.constData());
+            break;
+        case QtCriticalMsg:
+            __android_log_write(ANDROID_LOG_ERROR, "enroute", localMsg.constData());
+            break;
+        case QtFatalMsg:
+        default:
+            __android_log_write(ANDROID_LOG_FATAL, "enroute", localMsg.constData());
+            break;
+        }
+    });
+#endif   
+
     // Register types
     qRegisterMetaType<GeoMaps::Airspace>();
     qRegisterMetaType<Platform::FileExchange_Abstract::FileFunction>();
