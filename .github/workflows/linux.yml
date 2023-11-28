@@ -4,14 +4,34 @@ on:
   release:
     types: [published]
   push:
-    branches: [main]
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04]
+        compiler: [clang++]
+        build_type: [Debug]
+        qt: [6.4.*]
+
     steps:
+    - name: Debug Info
+      run: | 
+        echo "Compile on ${{ matrix.os }} ${{ matrix.compiler }} ${{ matrix.build_type }} Qt-${{ matrix.qt }}"
+        echo "# Ubuntu Version:"
+        cat /etc/issue
+        echo "# Available CLang Compilers:"
+        ls /usr/bin/clang++-*
+        echo "# ${{ matrix.compiler }} version:"
+        ${{ matrix.compiler }} --version
+        echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
+        echo "gcc:"
+        dpkg -l | grep gcc
+        dpkg -l | grep g++
+        dpkg -l | grep libstdc++
     - name: Checkout Enroute
       uses: actions/checkout@v3
       with:
@@ -26,24 +46,24 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v3
       with:
-        version: '6.4.*'
+        version: ${{ matrix.qt }}
         modules: 'qt5compat qthttpserver qtimageformats qtpositioning qtshadertools qtspeech qtwebsockets'
     - name: Install Additional Software
       run: |
-        sudo apt install extra-cmake-modules ninja-build spirv-tools
+        sudo apt install build-essential gcc g++ clang libc++-dev cmake extra-cmake-modules doxygen ninja-build spirv-tools libzip-dev zipcmp zipmerge ziptool 
+        sudo apt remove gcc-13 g++-13 libgcc-13-dev libstdc++-13-dev
     - name: Compile QtLocation
       run: |
         cmake -E make_directory build-qtlocation
         cd build-qtlocation
         qt-configure-module ../qtlocation
-        cmake -DMBGL_QT_WITH_INTERNAL_ICU:BOOL=On .
+        cmake . -GNinja -DMBGL_QT_WITH_INTERNAL_ICU:BOOL=On
         ninja
         ninja install
     - name: Compile Enroute Flight Navigation
       run: |
-        export CC=/usr/bin/clang
-        export CXX=/usr/bin/clang++
+        whereis qt-cmake
         cmake -E make_directory build-enroute
         cd build-enroute
-        cmake ../enroute -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS='-Werror -Wall -Wextra'
+        qt-cmake ../enroute -GNinja -DCMAKE_CXX_FLAGS='-Werror -Wall -Wextra' -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_CXX_COMPILER=${{ matrix.compiler }}
         cmake --build .
