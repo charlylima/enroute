@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd "$(dirname "$0")/.."
+
 # Prepare settings for Wayland and X11
 if [ -n "$WAYLAND_DISPLAY" ]; then
     QT_QPA_PLATFORM="wayland"
@@ -31,9 +33,8 @@ docker run --rm -it \
     -v $HOME/.config/Akaflieg\ Freiburg:/home/docker/.config/Akaflieg\ Freiburg \
     -v $HOME/.local/share/Akaflieg\ Freiburg:/home/docker/.local/share/Akaflieg\ Freiburg \
     -e QT_QPA_PLATFORM=$QT_QPA_PLATFORM \
-    -e LIBGL_ALWAYS_SOFTWARE=1 \
     -e XDG_RUNTIME_DIR=/run/user/$(id -u) \
     -v /dev/dri:/dev/dri --device /dev/dri \
     -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket \
     $DOCKER_PARAMETERS \
-    qtos663 bash -c "cd ~/enroute/enrouteInstallation && bin/enroute"
+    enroute-dev-linux bash -c "cd ~/enroute/enrouteInstallation && bin/enroute"

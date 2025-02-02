@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd "$(dirname "$0")/.."
+
 # Create the necessary directories
 if [ ! -d "$HOME/.ccache" ]; then mkdir -p "$HOME/.ccache"; fi
 if [ ! -d "$HOME/.local/share/Akaflieg Freiburg/enroute flight navigation" ]; then mkdir -p "$HOME/.local/share/Akaflieg Freiburg/enroute flight navigation"; fi
@@ -11,7 +13,7 @@ docker run --rm \
     -v $HOME/.ccache:/home/docker/.ccache \
     -v $HOME/.config/Akaflieg\ Freiburg:/home/docker/.config/Akaflieg\ Freiburg \
     -v $HOME/.local/share/Akaflieg\ Freiburg:/home/docker/.local/share/Akaflieg\ Freiburg \
-    qtos663 bash -c "cd ~/enroute && 
+    enroute-dev-linux bash -c "cd ~/enroute && 
         cmake \
             -B build-linux \
             -DCMAKE_BUILD_TYPE=Debug \

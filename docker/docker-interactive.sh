@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd "$(dirname "$0")/.."
+
 # Prepare settings for Wayland and X11
 if [ -n "$WAYLAND_DISPLAY" ]; then
     QT_QPA_PLATFORM="wayland"
@@ -10,7 +12,7 @@ if [ -n "$WAYLAND_DISPLAY" ]; then
         if [ -d /run/user/1000/wayland-0 ]; then
             rmdir /run/user/1000/wayland-0
         fi
-        sudo ln -s /mnt/wslg/runtime-dir/wayland-0 /run/user/1000/wayland-0
+        ln -s /mnt/wslg/runtime-dir/wayland-0 /run/user/1000/wayland-0
     fi
 else
     QT_QPA_PLATFORM="xcb"
@@ -36,5 +38,5 @@ docker run --rm -it \
     -v /dev/dri:/dev/dri --device /dev/dri \
     -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket \
     $DOCKER_PARAMETERS \
-    qtos663 bash
+    enroute-dev-android bash
     

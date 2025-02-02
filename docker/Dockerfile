@@ -1,7 +1,12 @@
 ARG UBUNTU_VERSION=24.04
 FROM ubuntu:${UBUNTU_VERSION}
 ARG QT_VERSION=6.8.2
-ARG ANDROID_NDK_VERSION=25c
+ARG ANDROID_NDK_VERSION=26.1.10909125
+ARG ANDROID_NDK_VERSION_SHORT=26b
+ARG ANDROID_SDK_VERSION=11076708
+ARG ANDROID_BUILD_TOOLS_VERSION=34.0.0
+ARG ANDROID_PLATFORM_VERSION=android-34
+
 ARG USER_NAME=docker
 ARG USER_ID
 ARG GROUP_NAME=docker
@@ -48,19 +53,35 @@ ENV Qt6_DIR_BASE=$QTDIR/..
 ENV PATH=$QTDIR/bin:$PATH
 ENV LD_LIBRARY_PATH=$Qt6_DIR_LINUX/lib:$LD_LIBRARY_PATH
 
+# Install Android SDK Command-Line Tools
+WORKDIR /opt/android
+RUN wget -q https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_VERSION}_latest.zip -O /tmp/cmdline-tools.zip && \
+    mkdir -p /opt/android/sdk/cmdline-tools && \
+    unzip -q /tmp/cmdline-tools.zip -d /opt/android/sdk/cmdline-tools && \
+    mv /opt/android/sdk/cmdline-tools/cmdline-tools /opt/android/sdk/cmdline-tools/latest && \
+    rm /tmp/cmdline-tools.zip
+ENV ANDROID_SDK_ROOT=/opt/android/sdk
+ENV PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH
+# Install required SDK components
+RUN apt-get install -y openjdk-17-jdk
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+RUN yes | sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" "platforms;${ANDROID_PLATFORM_VERSION}" "ndk;${ANDROID_NDK_VERSION}"
+#RUN yes | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager "ndk;${ANDROID_NDK_VERSION}"
+RUN yes | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --uninstall "platforms;android-33-ext4" "platforms;android-33-ext5" "platforms;android-34-ext8" "platforms;android-35-ext14"
+ENV ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/${ANDROID_NDK_VERSION}
+RUN ln -s ${ANDROID_SDK_ROOT}/ndk /opt/android/ndk
+RUN ln -s $ANDROID_NDK_HOME /opt/android/android-ndk-r${ANDROID_NDK_VERSION_SHORT}
+
 # Install Android NDK
-WORKDIR /opt
-RUN wget -q https://dl.google.com/android/repository/android-ndk-r${ANDROID_NDK_VERSION}-linux.zip && \
-    unzip android-ndk-r${ANDROID_NDK_VERSION}-linux.zip && \
-    rm android-ndk-r${ANDROID_NDK_VERSION}-linux.zip && \
-    ln -s /opt/android-ndk-r${ANDROID_NDK_VERSION} /opt/android-ndk && \
-    mkdir -p /opt/android && ln -s /opt/android-ndk-r${ANDROID_NDK_VERSION} /opt/android/android-ndk-r25b
-ENV ANDROID_NDK_HOME=/opt/android-ndk-r${ANDROID_NDK_VERSION}
+#WORKDIR /opt/android
+#RUN wget -q https://dl.google.com/android/repository/android-ndk-r${ANDROID_NDK_VERSION}-linux.zip && \
+#    unzip android-ndk-r${ANDROID_NDK_VERSION}-linux.zip && \
+#    rm android-ndk-r${ANDROID_NDK_VERSION}-linux.zip && \
+#    ln -s /opt/android/android-ndk-r${ANDROID_NDK_VERSION} /opt/android-ndk
+#ENV ANDROID_NDK_HOME=/opt/android/android-ndk-r${ANDROID_NDK_VERSION}
 
 # Install Qt for Android
 WORKDIR /root
-RUN apt-get install -y openjdk-17-jdk
-ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 RUN /root/.local/bin/aqt install-qt linux android ${QT_VERSION} android_arm64_v8a -m all -O /opt/qt
 ENV Qt6_DIR_ANDROID=/opt/qt/${QT_VERSION}/android_arm64_v8a
 ENV QT_HOST_PATH=$Qt6_DIR_LINUX
@@ -81,6 +102,7 @@ RUN ln -s /opt/qt
 
 # enrouteDependencies for Linux
 RUN git clone --recursive https://github.com/Akaflieg-Freiburg/enrouteDependencies.git
+ENV PLATFORM=gcc_64
 WORKDIR /home/${USER_NAME}/enrouteDependencies
 RUN $QTDIR/bin/qt-cmake \
     -S maplibre-native-qt \
@@ -89,54 +111,56 @@ RUN $QTDIR/bin/qt-cmake \
     -DMLN_QT_WITH_INTERNAL_ICU=ON \
     -DBUILD_TESTING=OFF \
     -DCMAKE_PREFIX_PATH=${QTDIR}/lib/cmake/Qt6 \
-    -DCMAKE_INSTALL_PREFIX=/home/${USER_NAME}/enrouteDependencies-bin/Qt/${QT_VERSION}/gcc_64
+    -DCMAKE_INSTALL_PREFIX=/home/${USER_NAME}/enrouteDependencies-bin/Qt/${QT_VERSION}/${PLATFORM}
 RUN cmake --build build-maplibre-native-qt-linux
 RUN cmake --install build-maplibre-native-qt-linux
-ENV QMapLibre_DIR=/home/${USER_NAME}/enrouteDependencies-bin/Qt/${QT_VERSION}/gcc_64/lib/cmake
-ENV QML2_IMPORT_PATH=$QTDIR/qml:/home/${USER_NAME}/enrouteDependencies-bin/Qt/${QT_VERSION}/gcc_64/qml
-ENV QT_PLUGIN_PATH=$QTDIR/plugins:/home/${USER_NAME}/enrouteDependencies-bin/Qt/${QT_VERSION}/gcc_64/plugins
-ENV LD_LIBRARY_PATH=/opt/qt/${QT_VERSION}/gcc_64/lib:/home/docker/enrouteDependencies-bin/Qt/${QT_VERSION}/gcc_64/lib
+ENV QMapLibre_DIR=/home/${USER_NAME}/enrouteDependencies-bin/Qt/${QT_VERSION}/${PLATFORM}/lib/cmake
+ENV QML2_IMPORT_PATH=$QTDIR/qml:/home/${USER_NAME}/enrouteDependencies-bin/Qt/${QT_VERSION}/${PLATFORM}/qml
+ENV QT_PLUGIN_PATH=$QTDIR/plugins:/home/${USER_NAME}/enrouteDependencies-bin/Qt/${QT_VERSION}/${PLATFORM}/plugins
+ENV LD_LIBRARY_PATH=/opt/qt/${QT_VERSION}/${PLATFORM}/lib:/home/docker/enrouteDependencies-bin/Qt/${QT_VERSION}/${PLATFORM}/lib
 
 # Ensure the module is available in the Qt installation
-# RUN ln -s $installDir/lib/cmake/QMapLibre /opt/Qt/${QT_VERSION}/gcc_64/lib/cmake/QMapLibre
+# RUN ln -s $installDir/lib/cmake/QMapLibre /opt/Qt/${QT_VERSION}/${PLATFORM}/lib/cmake/QMapLibre
 
 # enrouteDependencies for Android
-#ENV PLATFORM=android_arm64_v8a
-#ENV installDir=/opt/enrouteDependencies/Qt/${QT_VERSION}/${PLATFORM}
-#RUN $Qt6_DIR_BASE/$PLATFORM/bin/qt-cmake \
-#    -G Ninja  \
-#    -S libzip \
-#    -B build-libzip-$PLATFORM \
-#    -DBUILD_DOC=OFF \
-#    -DBUILD_EXAMPLES=OFF \
-#    -DBUILD_REGRESS=OFF \
-#    -DBUILD_SHARED_LIBS=OFF \
-#    -DBUILD_TOOLS=OFF \
-#    -DENABLE_BZIP2=OFF \
-#    -DENABLE_LZMA=OFF \
-#    -DENABLE_ZSTD=OFF \
-#    -DQT_ANDROID_ABIS="arm64-v8a" \
-#    -DCMAKE_INSTALL_PREFIX=$Qt6_DIR_ANDROID
-#RUN cmake --build build-libzip-$PLATFORM
-#RUN cmake --install build-libzip-$PLATFORM
+ENV PLATFORM=android_arm64_v8a
+ENV installDir=/home/${USER_NAME}/enrouteDependencies-bin/Qt/${QT_VERSION}/${PLATFORM}
+# first build libzip for the platform
+RUN $Qt6_DIR_BASE/$PLATFORM/bin/qt-cmake \
+    -G Ninja  \
+    -S libzip \
+    -B build-libzip-$PLATFORM \
+    -DBUILD_DOC=OFF \
+    -DBUILD_EXAMPLES=OFF \
+    -DBUILD_REGRESS=OFF \
+    -DBUILD_SHARED_LIBS=OFF \
+    -DBUILD_TOOLS=OFF \
+    -DENABLE_BZIP2=OFF \
+    -DENABLE_LZMA=OFF \
+    -DENABLE_ZSTD=OFF \
+    -DQT_ANDROID_ABIS="arm64-v8a" \
+    -DCMAKE_INSTALL_PREFIX=$installDir
+RUN cmake --build build-libzip-$PLATFORM
+RUN cmake --install build-libzip-$PLATFORM
+ENV CMAKE_MODULE_PATH=$CMAKE_MODULE_PATH:$installDir/lib/cmake
 
-#RUN $Qt6_DIR_BASE/$PLATFORM/bin/qt-cmake \
-#    -S maplibre-native-qt \
-#    -B build-maplibre-native-qt-$PLATFORM \
-#    -G Ninja \
-#    -DBUILD_TESTING=OFF \
-#    -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
-#    -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
-#    -DCMAKE_PREFIX_PATH=$Qt6_DIR_ANDROID \
-#    -DQT_ANDROID_ABIS="arm64-v8a" \
-#    -DCMAKE_INSTALL_PREFIX=$Qt6_DIR_ANDROID
-#RUN cmake --build build-maplibre-native-qt-$PLATFORM
-#RUN cmake --install build-maplibre-native-qt-$PLATFORM
-#ENV CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$Qt6_DIR_BASE/$PLATFORM:/home/developer/enrouteDependencies/${installDir}
+RUN $Qt6_DIR_BASE/$PLATFORM/bin/qt-cmake \
+    -S maplibre-native-qt \
+    -B build-maplibre-native-qt-$PLATFORM \
+    -G Ninja \
+    -DBUILD_TESTING=OFF \
+    -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
+    -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
+    -DCMAKE_PREFIX_PATH=$Qt6_DIR_ANDROID \
+    -DQT_ANDROID_ABIS="arm64-v8a" \
+    -DCMAKE_INSTALL_PREFIX=$installDir
+RUN cmake --build build-maplibre-native-qt-$PLATFORM
+RUN cmake --install build-maplibre-native-qt-$PLATFORM
+ENV CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$Qt6_DIR_BASE/$PLATFORM:/home/developer/enrouteDependencies-bin/Qt/${QT_VERSION}/${PLATFORM}
 
 # build enroute
-#USER developer
-#WORKDIR /home/developer
+#USER docker
+#WORKDIR /home/docker
 #RUN git clone --recursive https://github.com/Akaflieg-Freiburg/enroute.git
 #WORKDIR /home/developer/enroute
 #RUN mkdir build-linux
@@ -148,8 +172,8 @@ ENV LD_LIBRARY_PATH=/opt/qt/${QT_VERSION}/gcc_64/lib:/home/docker/enrouteDepende
 #RUN cmake --build build-linux
 
 # build enroute for Android
-#USER developer
-#WORKDIR /home/developer/enroute
+#USER docker
+#WORKDIR /home/docker/enroute
 #RUN mkdir -p build-android-debug
 #RUN $Qt6_DIR_ANDROID/bin/qt-cmake \
 #    -S . \

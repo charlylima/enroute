@@ -1,9 +1,18 @@
 #/bin/bash
+
 cd "$(dirname "$0")"
+
+#docker build \
+#    --build-arg USER_ID=$(id -u) \
+#    --build-arg GROUP_ID=$(id -g) \
+#    -t enroute-dev .
+
 docker build \
     --build-arg USER_ID=$(id -u) \
     --build-arg GROUP_ID=$(id -g) \
-    -t qtos663 .
+    -t enroute-dev-linux -f Dockerfile.linux .
 
-#docker buildx create --use
-#docker buildx build --build-arg "USER_NAME=$(id -un)" --build-arg USER_ID=$(id -u) --build-arg "GROUP_NAME=$(id -gn)" --build-arg GROUP_ID=$(id -g) -t qtos663 .
+docker build \
+    --build-arg USER_ID=$(id -u) \
+    --build-arg GROUP_ID=$(id -g) \
+    -t enroute-dev-android -f Dockerfile.android .
