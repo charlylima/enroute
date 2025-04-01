@@ -9,7 +9,7 @@ if [ ! -d "$HOME/.ccache" ]; then mkdir -p "$HOME/.ccache"; fi
 docker run --rm \
     -v .:/home/docker/enroute \
     -v $HOME/.ccache:/home/docker/.ccache \
-    enroute-dev-android bash -c "cd ~/enroute && \
+    enroute-dev-android bash -c "cd /home/docker/enroute && \
         \${Qt6_DIR_ANDROID}/bin/qt-cmake \
             -S . \
             -B build-android-debug \
@@ -22,5 +22,5 @@ docker run --rm \
             -DQT_HOST_PATH=\$QT_HOST_PATH \
             -G Ninja \
             && \ 
-        cmake --build build-android \
+        cmake --build build-android-debug \
         "
