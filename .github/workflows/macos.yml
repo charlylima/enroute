@@ -24,12 +24,6 @@ jobs:
         path: enroute
         submodules: recursive
         fetch-depth: 0
-    - name: Checkout Enroute Dependencies
-      uses: actions/checkout@v4
-      with:
-        path: enrouteDependencies
-        repository: Akaflieg-Freiburg/enrouteDependencies
-        submodules: recursive
     - name: Set up macOS
       uses: actions/setup-python@v4
       with:
@@ -46,38 +40,6 @@ jobs:
       uses: hendrikmuhs/ccache-action@v1.2
       with:
         key: macos
-    - name: Compile and Install libzip
-      run: |
-        $QT_ROOT_DIR/bin/qt-cmake \
-          -S enrouteDependencies/libzip \
-          -B build-libzip \
-          -G Ninja \
-          -DBUILD_DOC=OFF \
-          -DBUILD_EXAMPLES=OFF \
-          -DBUILD_REGRESS=OFF \
-          -DBUILD_SHARED_LIBS=OFF \
-          -DBUILD_TOOLS=OFF \
-          -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
-          -DENABLE_BZIP2=OFF \
-          -DENABLE_LZMA=OFF \
-          -DENABLE_ZSTD=OFF \
-          -DCMAKE_INSTALL_PREFIX=$QT_ROOT_DIR
-        cmake --build build-libzip
-        cmake --install build-libzip
-    - name: Compile and Install maplibre-native-qt
-      run: |
-        $QT_ROOT_DIR/bin/qt-cmake \
-          -S enrouteDependencies/maplibre-native-qt \
-          -B build-maplibre-native-qt \
-          -G Ninja \
-          -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" \
-          -DBUILD_TESTING=OFF \
-          -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
-          -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
-          -DCMAKE_PREFIX_PATH=$QT_ROOT_DIR \
-          -DCMAKE_INSTALL_PREFIX=$QT_ROOT_DIR
-        cmake --build build-maplibre-native-qt
-        cmake --install build-maplibre-native-qt
     - name: Compile Enroute Flight Navigation
       run: |
         cmake \
@@ -90,14 +52,3 @@ jobs:
           -DCMAKE_INSTALL_PREFIX=. \
           -DQTDEPLOY=ON 
         cmake --build build-enroute
-    - name: Package
-      run: |
-        cmake --build build-enroute --target install
-        /usr/bin/sudo $QT_ROOT_DIR/bin/macdeployqt enroute.app -dmg
-        mv enroute.dmg enroute-macOS-universal.dmg
-    - name: Upload to developerBuilds
-      run: |
-        gh release upload --clobber developerBuilds ../enroute-macOS-universal.dmg
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      working-directory: enroute
