@@ -63,17 +63,5 @@ cmake --build build-linux
 
 # Call with "-run" parameter to install and run the executable
 if [ "$1" = "-run" ] || [ "$2" = "-run" ]; then
-    # Run from build folder
-    export QML2_IMPORT_PATH=$PWD/build-linux/3rdParty/maplibre-native-qt/src/location/plugins
-    export QT_PLUGIN_PATH=$PWD/build-linux/3rdParty/maplibre-native-qt/src/location/plugins
     build-linux/src/enroute
-
-    # Install the executable
-    #ln -sf 3rdParty/maplibre-native-qt/vendor # workaround a bug in CMake of maplibre-native
-    #cmake --install build-linux
-    #rm vendor
-    #export LD_LIBRARY_PATH=$Qt6_DIR_LINUX/lib:$PWD/enrouteInstallation/lib:$LD_LIBRARY_PATH
-    #export QML2_IMPORT_PATH=$PWD/enrouteInstallation/qml
-    #export QT_PLUGIN_PATH=$PWD/enrouteInstallation/plugins
-    #enrouteInstallation/bin/enroute
 fi
