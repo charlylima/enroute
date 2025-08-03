@@ -70,7 +70,6 @@ qt_policy(SET QTP0004 NEW)
 
 find_package(libzip REQUIRED)
 find_package(Git REQUIRED)
-find_package(QMapLibre COMPONENTS Location REQUIRED)
 
 
 if(IOS)

@@ -27,16 +27,30 @@
 #
 # Run this script in the main directory tree.
 
-#
+# Configure this script to exit immediately if a command exits with a non-zero status
+set -e
+
+# You should make sure that git submodules are loaded
+# git submodule update --init --recursive
+
+# Set the Qt6_DIR_LINUX variable to point to your Qt6 installation.
+# For example, if you have Qt6 installed in /opt/Qt/6.9.0/gcc_64,
+# you would set it like this:
+# export Qt6_DIR_LINUX=/opt/Qt/6.9.0/gcc_64
+if [ -z "$Qt6_DIR_LINUX" ]; then
+    echo "Error: Qt6_DIR_LINUX is not set. Please export Qt6_DIR_LINUX to your Qt6 installation path."
+    echo "Example: export Qt6_DIR_LINUX=/opt/Qt/6.9.0/gcc_64"
+    echo "If you have not installed Qt6, please do so first."
+    exit 1
+fi
+
 # Clean
-#
+# Call with "-no-clean" parameter for a faster build.
+if [ "$1" != "-no-clean" ] && [ "$2" != "-no-clean" ]; then
+    rm  -rf build-linux
+fi
 
-rm  -rf build-linux-debug
-
-#
 # Build the executable
-#
-
 $Qt6_DIR_LINUX/bin/qt-cmake \
     -B build-linux \
     -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
@@ -46,3 +60,20 @@ $Qt6_DIR_LINUX/bin/qt-cmake \
     -S .
 
 cmake --build build-linux
+
+# Call with "-run" parameter to install and run the executable
+if [ "$1" = "-run" ] || [ "$2" = "-run" ]; then
+    # Run from build folder
+    export QML2_IMPORT_PATH=$PWD/build-linux/3rdParty/maplibre-native-qt/src/location/plugins
+    export QT_PLUGIN_PATH=$PWD/build-linux/3rdParty/maplibre-native-qt/src/location/plugins
+    build-linux/src/enroute
+
+    # Install the executable
+    #ln -sf 3rdParty/maplibre-native-qt/vendor # workaround a bug in CMake of maplibre-native
+    #cmake --install build-linux
+    #rm vendor
+    #export LD_LIBRARY_PATH=$Qt6_DIR_LINUX/lib:$PWD/enrouteInstallation/lib:$LD_LIBRARY_PATH
+    #export QML2_IMPORT_PATH=$PWD/enrouteInstallation/qml
+    #export QT_PLUGIN_PATH=$PWD/enrouteInstallation/plugins
+    #enrouteInstallation/bin/enroute
+fi
