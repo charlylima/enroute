@@ -97,6 +97,21 @@ add_subdirectory(bzip2)
 
 
 #
+# libzip (zip library for enroute)
+#
+
+# Configure libzip to use our 3rdParty zlib instead of system zlib.
+# Set policy CMP0074, without CMake would ignore ZLIB_ROOT variable.
+cmake_policy(SET CMP0074 NEW)
+set(ZLIB_ROOT "${CMAKE_CURRENT_BINARY_DIR}/zlib" CACHE PATH "Path to zlib installation" FORCE)
+
+# Disable libzip installation and exports since we only need the library target
+set(LIBZIP_DO_INSTALL OFF CACHE BOOL "Disable libzip installation" FORCE)
+
+add_subdirectory(libzip)
+
+
+#
 # Google Material Icons
 #
 

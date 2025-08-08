@@ -68,7 +68,7 @@ qt_policy(SET QTP0004 NEW)
 # External Packages
 #
 
-find_package(libzip REQUIRED)
+# We build libzip from source in 3rdParty/ for all platforms to ensure consistency
 find_package(Git REQUIRED)
 
 
