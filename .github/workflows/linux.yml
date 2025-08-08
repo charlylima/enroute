@@ -1,5 +1,7 @@
 name: Compile on Linux
 
+run-name: 🐧 Linux Build - ${{ github.event.head_commit.message }}
+
 on:
   push:
     branches: [ develop ]

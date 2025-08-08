@@ -1,5 +1,7 @@
 name: Compile on iOS
 
+run-name: 📱 iOS Build - ${{ github.event.head_commit.message }}
+
 on:
   push:
     branches: [ develop ]
