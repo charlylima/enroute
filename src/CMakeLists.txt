@@ -387,13 +387,9 @@ target_precompile_headers(${PROJECT_NAME}
     <QQmlEngine>
 )
 
-# Copy MapLibre QML plugins to executable directory for development builds
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_BINARY_DIR}/3rdParty/maplibre-native-qt/src/location/plugins
-    $<TARGET_FILE_DIR:${PROJECT_NAME}>
-    COMMENT "Copying MapLibre QML plugins to executable directory"
-)
+# Copy MapLibre QML plugins to executable directory for development builds, 
+# so we do not need to set QML2_IMPORT_PATH and QT_PLUGIN_PATH for development builds.
+copy_maplibre_plugins_to_target(${PROJECT_NAME})
 
 # Install
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_BINDIR})

@@ -61,7 +61,16 @@ $Qt6_DIR_LINUX/bin/qt-cmake \
 
 cmake --build build-linux
 
-# Call with "-run" parameter to install and run the executable
+# Call with "-run" parameter to run the executable
 if [ "$1" = "-run" ] || [ "$2" = "-run" ]; then
+    # Run from build folder (MapLibre plugins are now copied automatically by CMake)
     build-linux/src/enroute
+fi
+
+# Call with "-install" parameter to install and run from installation directory
+if [ "$1" = "-install" ] || [ "$2" = "-install" ]; then
+    # Install the executable (vendor symlink is created automatically by CMake)
+    cmake --install build-linux
+    # Run from installation directory
+    cd enrouteInstallation && ./bin/enroute
 fi

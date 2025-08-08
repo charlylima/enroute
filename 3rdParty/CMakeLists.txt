@@ -26,6 +26,27 @@ macro(add_subdirectory dir)
     endif()
 endmacro()
 
+# Workaround for MapLibre accessing vendor/ folder in top project folder in install step.
+# Install step to ensure vendor symlink exists BEFORE MapLibre install steps  
+# This must be defined before adding maplibre-native-qt to ensure correct install order
+install(CODE "
+    if(NOT EXISTS \"${CMAKE_SOURCE_DIR}/vendor\")
+        execute_process(
+            COMMAND ${CMAKE_COMMAND} -E create_symlink
+            3rdParty/maplibre-native-qt/vendor
+            ${CMAKE_SOURCE_DIR}/vendor
+            RESULT_VARIABLE SYMLINK_RESULT
+        )
+        if(SYMLINK_RESULT EQUAL 0)
+            message(STATUS \"Install: Created vendor symlink for MapLibre Native Qt\")
+        else()
+            message(FATAL_ERROR \"Install: Failed to create vendor symlink\")
+        endif()
+    else()
+        message(STATUS \"Install: Vendor symlink already exists\")
+    endif()
+")
+
 # Add maplibre-native-qt with proper configuration
 _add_subdirectory(maplibre-native-qt)
 
@@ -48,6 +69,17 @@ if(TARGET qtgeoservices_maplibre)
         ${CMAKE_CURRENT_SOURCE_DIR}/maplibre-native-qt/src/core/style
     )
 endif()
+
+# Function to copy MapLibre plugins to executable directory, 
+# so we do not need to set QML2_IMPORT_PATH and QT_PLUGIN_PATH for development builds.
+function(copy_maplibre_plugins_to_target target_name)
+    add_custom_command(TARGET ${target_name} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_BINARY_DIR}/3rdParty/maplibre-native-qt/src/location/plugins
+        $<TARGET_FILE_DIR:${target_name}>
+        COMMENT "Copying MapLibre QML plugins to executable directory"
+    )
+endfunction()
 
 
 #
@@ -98,3 +130,20 @@ set(mapBoxFont_SOURCE_DIR
 # For simplicity, we do not build the subset library, but include the source files
 # into the enroute target. This avoids problems on iOS and saves us the overhead of
 # finding and loading the library at runtime.
+
+# Clean up vendor symlink after all 3rdParty install operations are complete
+# This runs after all MapLibre and other dependency installs to clean up the temporary symlink
+install(CODE "
+    if(EXISTS \"${CMAKE_SOURCE_DIR}/vendor\")
+        execute_process(
+            COMMAND ${CMAKE_COMMAND} -E remove
+            ${CMAKE_SOURCE_DIR}/vendor
+            RESULT_VARIABLE REMOVE_RESULT
+        )
+        if(REMOVE_RESULT EQUAL 0)
+            message(STATUS \"Install: Cleaned up vendor symlink\")
+        else()
+            message(WARNING \"Install: Failed to remove vendor symlink\")
+        endif()
+    endif()
+")
