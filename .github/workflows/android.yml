@@ -1,6 +1,6 @@
 name: Compile on Android
 
-run-name: 🤖 Android Build - ${{ github.event.head_commit.message }}
+run-name: Android Build - ${{ github.event.head_commit.message }}
 
 on:
   push:

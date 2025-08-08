@@ -1,6 +1,6 @@
 name: Compile on MacOS
 
-run-name: 🍎 macOS Build - ${{ github.event.head_commit.message }}
+run-name: macOS Build - ${{ github.event.head_commit.message }}
 
 on:
   push:
