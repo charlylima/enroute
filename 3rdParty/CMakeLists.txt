@@ -80,6 +80,9 @@ install(CODE "
 # Add maplibre-native-qt with proper configuration
 _add_subdirectory(maplibre-native-qt)
 
+# Include MapLibre macros to make qmaplibre_location_setup_plugins available
+include(${CMAKE_CURRENT_SOURCE_DIR}/maplibre-native-qt/src/location/macros.cmake)
+
 # Add additional include path for style headers to fix header inclusion issues
 target_include_directories(MLNQtCore PRIVATE 
     ${CMAKE_CURRENT_SOURCE_DIR}/maplibre-native-qt/src/core/style
