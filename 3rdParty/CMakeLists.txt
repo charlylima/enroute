@@ -29,6 +29,48 @@ function(add_subdirectory_with_rpath_isolation dir)
 endfunction()
 
 #
+# zlib (compression library, required by MapLibre Native Qt)
+#
+add_subdirectory(zlib)
+
+# Configure zlib paths for all components that need it (MapLibre, libzip)
+# Point to zlib source for headers and build directory for library
+set(CMAKE_POLICY_DEFAULT_CMP0074 NEW)
+set(ZLIB_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/zlib" CACHE PATH "Path to zlib sources" FORCE)
+set(ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/zlib" CACHE PATH "Path to zlib headers" FORCE)
+set(ZLIB_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/zlib" CACHE PATH "Path to zlib headers (plural)" FORCE)
+# Use the actual build directory where zlib library is built
+set(ZLIB_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/zlib/libz.a" CACHE FILEPATH "Path to zlib library" FORCE)
+set(ZLIB_LIBRARIES "${CMAKE_CURRENT_BINARY_DIR}/zlib/libz.a" CACHE FILEPATH "Path to zlib libraries (plural)" FORCE)
+set(ZLIB_FOUND TRUE CACHE BOOL "ZLIB found flag" FORCE)
+
+# Additional library path configuration for linker
+link_directories("${CMAKE_CURRENT_BINARY_DIR}/zlib")
+
+# Set environment variables for zlib as additional fallback
+set(ENV{ZLIB_ROOT} "${CMAKE_CURRENT_SOURCE_DIR}/zlib")
+set(ENV{ZLIB_INCLUDE_DIR} "${CMAKE_CURRENT_SOURCE_DIR}/zlib")
+
+# Set library path for linker to find zlib
+set(CMAKE_LIBRARY_PATH "${CMAKE_CURRENT_BINARY_DIR}/zlib;${CMAKE_LIBRARY_PATH}" CACHE PATH "Library search paths" FORCE)
+
+
+#
+# bzip2 (compression library, required by MapLibre Native Qt)
+#
+# Disable bzip2 applications to avoid conflicts with main project installation
+set(ENABLE_LIB_ONLY ON CACHE BOOL "Only build bzip2 library, not applications" FORCE)
+add_subdirectory(bzip2)
+
+#
+# libzip (zip library for enroute)
+#
+# Disable libzip installation and exports since we only need the library target
+set(LIBZIP_DO_INSTALL OFF CACHE BOOL "Disable libzip installation" FORCE)
+add_subdirectory_with_rpath_isolation(libzip)
+
+
+#
 # MapLibre Native Qt (for mapping functionality)
 #
 
@@ -78,6 +120,13 @@ install(CODE "
 ")
 
 # Add maplibre-native-qt with proper configuration
+# Additional ZLIB configuration specifically for MapLibre
+set(CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/zlib;${CMAKE_PREFIX_PATH}")
+include_directories(BEFORE "${CMAKE_CURRENT_SOURCE_DIR}/zlib")
+
+# Ensure that all subdirectories (including MapLibre) can find zlib
+set(CMAKE_FIND_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/zlib;${CMAKE_FIND_ROOT_PATH}")
+
 _add_subdirectory(maplibre-native-qt)
 
 # Include MapLibre macros to make qmaplibre_location_setup_plugins available
@@ -114,41 +163,6 @@ function(copy_maplibre_plugins_to_target target_name)
     )
 endfunction()
 
-
-#
-# zlib (compression library, required by MapLibre Native Qt)
-#
-
-add_subdirectory(zlib)
-
-
-#
-# bzip2 (compression library, required by MapLibre Native Qt)
-#
-
-# Disable bzip2 applications to avoid conflicts with main project installation
-set(ENABLE_LIB_ONLY ON CACHE BOOL "Only build bzip2 library, not applications" FORCE)
-
-add_subdirectory(bzip2)
-
-
-#
-# libzip (zip library for enroute)
-#
-
-# Set policy default for libzip subdirectory to handle ZLIB_ROOT variable
-# This works even if libzip calls cmake_minimum_required() which resets policies
-set(CMAKE_POLICY_DEFAULT_CMP0074 NEW)
-
-# Configure libzip to use our 3rdParty zlib instead of system zlib.
-# Point to zlib source for headers and build directory for library
-set(ZLIB_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/zlib" CACHE PATH "Path to zlib sources" FORCE)
-set(ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/zlib" CACHE PATH "Path to zlib headers" FORCE)
-set(ZLIB_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/zlib/libz.a" CACHE FILEPATH "Path to zlib library" FORCE)
-
-# Disable libzip installation and exports since we only need the library target
-set(LIBZIP_DO_INSTALL OFF CACHE BOOL "Disable libzip installation" FORCE)
-add_subdirectory_with_rpath_isolation(libzip)
 
 #
 # Google Material Icons

@@ -33,6 +33,12 @@ set -e
 # You should make sure that git submodules are loaded
 # git submodule update --init --recursive
 
+# Prepare your Linux with:
+# sudo apt update && \
+#   sudo apt install build-essential cmake ccache ninja-build libpulse-dev \
+#   libxkbcommon-dev libxkbcommon-x11-dev libxcb1-dev libxb-*dev
+
+# Download Qt Installer from https://qt.io/download. 
 # Set the Qt6_DIR_LINUX variable to point to your Qt6 installation.
 # For example, if you have Qt6 installed in /opt/Qt/6.9.0/gcc_64,
 # you would set it like this:
