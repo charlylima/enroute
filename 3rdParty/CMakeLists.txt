@@ -20,7 +20,7 @@ function(add_subdirectory_with_rpath_isolation dir)
     
     # Add the subdirectory (which may modify RPATH settings)
     add_subdirectory(${dir} ${ARGN})
-    
+
     # Restore original values in parent scope
     set(CMAKE_INSTALL_RPATH "${SAVED_INSTALL_RPATH}" PARENT_SCOPE)
     set(CMAKE_INSTALL_RPATH_USE_LINK_PATH "${SAVED_INSTALL_RPATH_USE_LINK_PATH}" PARENT_SCOPE)
@@ -136,16 +136,19 @@ add_subdirectory(bzip2)
 # libzip (zip library for enroute)
 #
 
+# Set policy default for libzip subdirectory to handle ZLIB_ROOT variable
+# This works even if libzip calls cmake_minimum_required() which resets policies
+set(CMAKE_POLICY_DEFAULT_CMP0074 NEW)
+
 # Configure libzip to use our 3rdParty zlib instead of system zlib.
-# Set policy CMP0074, without CMake would ignore ZLIB_ROOT variable.
-cmake_policy(SET CMP0074 NEW)
-set(ZLIB_ROOT "${CMAKE_CURRENT_BINARY_DIR}/zlib" CACHE PATH "Path to zlib installation" FORCE)
+# Point to zlib source for headers and build directory for library
+set(ZLIB_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/zlib" CACHE PATH "Path to zlib sources" FORCE)
+set(ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/zlib" CACHE PATH "Path to zlib headers" FORCE)
+set(ZLIB_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/zlib/libz.a" CACHE FILEPATH "Path to zlib library" FORCE)
 
 # Disable libzip installation and exports since we only need the library target
 set(LIBZIP_DO_INSTALL OFF CACHE BOOL "Disable libzip installation" FORCE)
-
 add_subdirectory_with_rpath_isolation(libzip)
-
 
 #
 # Google Material Icons
