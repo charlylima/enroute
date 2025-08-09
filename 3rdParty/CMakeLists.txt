@@ -1,4 +1,34 @@
 #
+# Save current RPATH settings to restore later
+#
+
+set(_SAVED_CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}")
+set(_SAVED_CMAKE_INSTALL_RPATH_USE_LINK_PATH "${CMAKE_INSTALL_RPATH_USE_LINK_PATH}")
+set(_SAVED_CMAKE_MACOSX_RPATH "${CMAKE_MACOSX_RPATH}")
+set(_SAVED_PKG_CONFIG_RPATH "${PKG_CONFIG_RPATH}")
+
+#
+# Function to add a subdirectory with RPATH isolation
+#
+
+function(add_subdirectory_with_rpath_isolation dir)
+    # Save current values
+    set(SAVED_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}")
+    set(SAVED_INSTALL_RPATH_USE_LINK_PATH "${CMAKE_INSTALL_RPATH_USE_LINK_PATH}")
+    set(SAVED_MACOSX_RPATH "${CMAKE_MACOSX_RPATH}")
+    set(SAVED_PKG_CONFIG_RPATH "${PKG_CONFIG_RPATH}")
+    
+    # Add the subdirectory (which may modify RPATH settings)
+    add_subdirectory(${dir} ${ARGN})
+    
+    # Restore original values in parent scope
+    set(CMAKE_INSTALL_RPATH "${SAVED_INSTALL_RPATH}" PARENT_SCOPE)
+    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH "${SAVED_INSTALL_RPATH_USE_LINK_PATH}" PARENT_SCOPE)
+    set(CMAKE_MACOSX_RPATH "${SAVED_MACOSX_RPATH}" PARENT_SCOPE)
+    set(PKG_CONFIG_RPATH "${SAVED_PKG_CONFIG_RPATH}" PARENT_SCOPE)
+endfunction()
+
+#
 # MapLibre Native Qt (for mapping functionality)
 #
 
@@ -108,7 +138,7 @@ set(ZLIB_ROOT "${CMAKE_CURRENT_BINARY_DIR}/zlib" CACHE PATH "Path to zlib instal
 # Disable libzip installation and exports since we only need the library target
 set(LIBZIP_DO_INSTALL OFF CACHE BOOL "Disable libzip installation" FORCE)
 
-add_subdirectory(libzip)
+add_subdirectory_with_rpath_isolation(libzip)
 
 
 #
@@ -145,6 +175,30 @@ set(mapBoxFont_SOURCE_DIR
 # For simplicity, we do not build the subset library, but include the source files
 # into the enroute target. This avoids problems on iOS and saves us the overhead of
 # finding and loading the library at runtime.
+
+#
+# Restore original RPATH settings that were overwritten by 3rdParty dependencies
+#
+
+if(DEFINED _SAVED_CMAKE_INSTALL_RPATH)
+    set(CMAKE_INSTALL_RPATH "${_SAVED_CMAKE_INSTALL_RPATH}")
+endif()
+if(DEFINED _SAVED_CMAKE_INSTALL_RPATH_USE_LINK_PATH)
+    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH "${_SAVED_CMAKE_INSTALL_RPATH_USE_LINK_PATH}")
+endif()
+if(DEFINED _SAVED_CMAKE_MACOSX_RPATH)
+    set(CMAKE_MACOSX_RPATH "${_SAVED_CMAKE_MACOSX_RPATH}")
+endif()
+if(DEFINED _SAVED_PKG_CONFIG_RPATH)
+    set(PKG_CONFIG_RPATH "${_SAVED_PKG_CONFIG_RPATH}")
+endif()
+
+# Alternative: Explicitly set the desired RPATH behavior for the main project
+# Uncomment and customize these lines based on your project's needs:
+# set(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
+# if(APPLE)
+#     set(CMAKE_MACOSX_RPATH ON)
+# endif()
 
 # Clean up vendor symlink after all 3rdParty install operations are complete
 # This runs after all MapLibre and other dependency installs to clean up the temporary symlink
