@@ -322,7 +322,7 @@ if(ANDROID)
         QMapLibre::Location
         libzip::zip
     )
-    qmaplibre_location_setup_plugins(${PROJECT_NAME})
+    
     set_target_properties(${PROJECT_NAME} PROPERTIES
         QT_ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/android"
         QT_ANDROID_TARGET_SDK_VERSION 35
@@ -506,7 +506,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 )
 set_source_files_properties(
     PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-qmaplibre_location_setup_plugins(${PROJECT_NAME})
+
 target_include_directories(${PROJECT_NAME}
     PUBLIC
     ios/mapLibreDependencies

@@ -129,6 +129,17 @@ set(CMAKE_FIND_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/zlib;${CMAKE_FIND_ROOT_PAT
 
 _add_subdirectory(maplibre-native-qt)
 
+# Create missing alias for the GeoServices plugin that the macro expects
+# The plugin target exists but the QMapLibre::PluginGeoServices alias is only created during install
+if(TARGET qtgeoservices_maplibre)
+    add_library(QMapLibre::PluginGeoServices ALIAS qtgeoservices_maplibre)
+endif()
+
+# Create missing alias for the QML plugin that the macro might also expect
+if(TARGET declarative_locationplugin_maplibre)
+    add_library(QMapLibre::PluginQml ALIAS declarative_locationplugin_maplibre)
+endif()
+
 # Include MapLibre macros to make qmaplibre_location_setup_plugins available
 include(${CMAKE_CURRENT_SOURCE_DIR}/maplibre-native-qt/src/location/macros.cmake)
 
