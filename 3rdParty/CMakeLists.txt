@@ -123,6 +123,9 @@ add_subdirectory(zlib)
 # bzip2 (compression library, required by MapLibre Native Qt)
 #
 
+# Disable bzip2 applications to avoid conflicts with main project installation
+set(ENABLE_LIB_ONLY ON CACHE BOOL "Only build bzip2 library, not applications" FORCE)
+
 add_subdirectory(bzip2)
 
 
