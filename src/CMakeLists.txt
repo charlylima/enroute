@@ -431,6 +431,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/macos/Info.plist"
     MACOSX_BUNDLE_ICON_FILE enroute.icns
     MACOSX_BUNDLE_BUNDLE_NAME "Enroute Flight Navigation"
+    MACOSX_BUNDLE_GUI_IDENTIFIER de.akaflieg-freiburg.enroute
 )
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
@@ -504,6 +505,7 @@ target_link_libraries(${PROJECT_NAME}
 set_target_properties(${PROJECT_NAME} PROPERTIES
     MACOSX_BUNDLE true
     MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/ios/Info.plist"
+    MACOSX_BUNDLE_GUI_IDENTIFIER de.akaflieg-freiburg.enroute
 )
 set_source_files_properties(
     PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
