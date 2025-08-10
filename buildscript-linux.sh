@@ -33,12 +33,6 @@ set -e
 # You should make sure that git submodules are loaded
 # git submodule update --init --recursive
 
-# Prepare your Linux with:
-# sudo apt update && \
-#   sudo apt install build-essential cmake ccache ninja-build libpulse-dev \
-#   libxkbcommon-dev libxkbcommon-x11-dev libxcb1-dev libxb-*dev
-
-# Download Qt Installer from https://qt.io/download. 
 # Set the Qt6_DIR_LINUX variable to point to your Qt6 installation.
 # For example, if you have Qt6 installed in /opt/Qt/6.9.0/gcc_64,
 # you would set it like this:
@@ -46,7 +40,7 @@ set -e
 if [ -z "$Qt6_DIR_LINUX" ]; then
     echo "Error: Qt6_DIR_LINUX is not set. Please export Qt6_DIR_LINUX to your Qt6 installation path."
     echo "Example: export Qt6_DIR_LINUX=/opt/Qt/6.9.0/gcc_64"
-    echo "If you have not installed Qt6, please do so first."
+    echo "If you have not installed Qt6, please do so first. Download Qt from https://www.qt.io/download."
     exit 1
 fi
 
@@ -54,6 +48,7 @@ fi
 # Call with "-no-clean" parameter for a faster build.
 if [ "$1" != "-no-clean" ] && [ "$2" != "-no-clean" ]; then
     rm  -rf build-linux
+    rm  -rf enrouteInstallation
 fi
 
 # Build the executable
