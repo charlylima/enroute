@@ -452,7 +452,13 @@ target_link_libraries(${PROJECT_NAME}
     QMapLibre::Location
     libzip::zip
 )
-qmaplibre_location_setup_plugins(${PROJECT_NAME})
+# Only call qmaplibre_location_setup_plugins if the targets are imported (not built in same tree)
+get_target_property(_isImported qtgeoservices_maplibre IMPORTED)
+if(_isImported)
+    qmaplibre_location_setup_plugins(${PROJECT_NAME})
+else()
+    message(STATUS "MapLibre plugins built in same tree - skipping plugin setup for macOS")
+endif()
 endif()
 
 
@@ -509,7 +515,13 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 )
 set_source_files_properties(
     PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-qmaplibre_location_setup_plugins(${PROJECT_NAME})
+# Only call qmaplibre_location_setup_plugins if the targets are imported (not built in same tree)
+get_target_property(_isImported qtgeoservices_maplibre IMPORTED)
+if(_isImported)
+    qmaplibre_location_setup_plugins(${PROJECT_NAME})
+else()
+    message(STATUS "MapLibre plugins built in same tree - skipping plugin setup for iOS")
+endif()
 target_include_directories(${PROJECT_NAME}
     PUBLIC
     ios/mapLibreDependencies
