@@ -451,6 +451,7 @@ target_link_libraries(${PROJECT_NAME}
     QMapLibre::Location
     libzip::zip
 )
+qmaplibre_location_setup_plugins(${PROJECT_NAME})
 endif()
 
 
@@ -506,7 +507,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 )
 set_source_files_properties(
     PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-
+qmaplibre_location_setup_plugins(${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME}
     PUBLIC
     ios/mapLibreDependencies

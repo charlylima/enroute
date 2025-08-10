@@ -85,6 +85,12 @@ set(MLN_QT_WITH_INTERNAL_ICU ON CACHE BOOL "Use internal ICU" FORCE)
 set(BUILD_TESTING OFF CACHE BOOL "Disable testing for dependencies" FORCE)
 set(MLN_QT_WITH_TESTS OFF CACHE BOOL "Build tests" FORCE)
 set(MLN_QT_WITH_BENCHMARK OFF CACHE BOOL "Build benchmarks" FORCE)
+
+# Disable installation for iOS builds to avoid object library installation issues
+if(IOS)
+    set(MLN_QT_WITH_INSTALL OFF CACHE BOOL "Disable MapLibre installation for iOS" FORCE)
+endif()
+
 set(MBGL_WITH_QT_DECODERS ON CACHE BOOL "Use builtin decoders" FORCE)
 
 # Override add_subdirectory to skip test directories.
