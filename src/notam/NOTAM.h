@@ -196,6 +196,19 @@ public:
      */
     Q_REQUIRED_RESULT QString category() const;
 
+    /*! \brief GeoJSON feature for the area described in this NOTAM
+     *
+     *  Attempts to extract an area from:
+     *  - Polygon coordinate sequences in the NOTAM text (DDMMSS pairs)
+     *  - The GeoJSON radius + coordinate (for non-obstacle, non-generic NOTAMs
+     *    with radius > 1 NM)
+     *
+     *  Returns an empty object if the area exceeds 50 NM extent.
+     *
+     *  @returns A GeoJSON Feature with Polygon geometry, or an empty QJsonObject
+     */
+    Q_REQUIRED_RESULT QJsonObject areaGeoJSON() const;
+
     /*! \brief Comparison
      *
      *  @param rhs Right hand side of the comparison
@@ -275,6 +288,17 @@ private:
  *
  */
 QGeoCoordinate interpretNOTAMCoordinates(const QString& string);
+
+/*! \brief Read coordinate in NOTAM DDMMSS format
+ *
+ *  Converts a coordinate pair like "472911N" + "0110246E" into a QGeoCoordinate.
+ *
+ *  @param lat Latitude string (6 digits + N/S, e.g. "472911N")
+ *  @param lon Longitude string (7 digits + E/W, e.g. "0110246E")
+ *
+ *  @returns Interpreted QGeoCoordinate, or an invalid coordinate on error
+ */
+QGeoCoordinate interpretNOTAMCoordinatesDDMMSS(const QString& lat, const QString& lon);
 
 /*! \brief Serialization
  *
