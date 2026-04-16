@@ -357,13 +357,23 @@ QJsonObject NOTAM::NOTAM::areaGeoJSON() const
         return feature;
     }
 
-    // --- 2. Fallback: use GeoJSON radius + coordinate for UAS and PJE only ---
+    // --- 2. Fallback: use GeoJSON radius + coordinate for UAS, PJE, and new RA ---
     if (m_coordinate.isValid() && m_radius.isFinite() && m_radius.toNM() > 0)
     {
         auto cat = category();
         if (cat == u"NOTAM-UAS"_s || cat == u"NOTAM-PJE"_s)
         {
             return buildCircleFeature(m_coordinate, m_radius.toNM());
+        }
+        // For RA: only show radius if text does NOT reference a charted airspace
+        // (e.g. "ED-R 136", "LO-D 5"). Those areas are already on the map.
+        if (cat == u"NOTAM-RA"_s)
+        {
+            static const QRegularExpression chartedAreaRE(u"[A-Z]{2}-?[RDP]\\s*\\d+"_s);
+            if (!chartedAreaRE.match(m_text).hasMatch())
+            {
+                return buildCircleFeature(m_coordinate, m_radius.toNM());
+            }
         }
     }
 
