@@ -357,16 +357,14 @@ QJsonObject NOTAM::NOTAM::areaGeoJSON() const
         return feature;
     }
 
-    // --- 2. Fallback: use GeoJSON radius + coordinate ---
+    // --- 2. Fallback: use GeoJSON radius + coordinate for UAS and PJE only ---
     if (m_coordinate.isValid() && m_radius.isFinite() && m_radius.toNM() > 0)
     {
-        // Skip obstacles and generic NOTAMs with default radius (1 NM)
         auto cat = category();
-        if ((cat == u"NOTAM-OBST"_s || cat == u"NOTAM"_s) && m_radius.toNM() <= 1)
+        if (cat == u"NOTAM-UAS"_s || cat == u"NOTAM-PJE"_s)
         {
-            return {};
+            return buildCircleFeature(m_coordinate, m_radius.toNM());
         }
-        return buildCircleFeature(m_coordinate, m_radius.toNM());
     }
 
     return {};
