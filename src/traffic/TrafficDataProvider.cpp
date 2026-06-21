@@ -96,8 +96,6 @@ Traffic::TrafficDataProvider::TrafficDataProvider(QObject *parent)
     m_currentSourceIsInternetService.setBinding([this]() {
         return qobject_cast<TrafficDataSource_Ogn*>(m_currentSource.value()) != nullptr;
     });
-    m_currentSourceNotifier = m_currentSource.addNotifier([this]() {onCurrentSourceChanged();});
-
     // Connect timer. Try to (re)connect after 2s, and then again every five minutes.
     QTimer::singleShot(2s, this, &Traffic::TrafficDataProvider::connectToTrafficReceiver);
     connect(&reconnectionTimer, &QTimer::timeout, this, &Traffic::TrafficDataProvider::connectToTrafficReceiver);
@@ -135,6 +133,9 @@ void Traffic::TrafficDataProvider::addDataSource(Traffic::TrafficDataSource_Abst
 
     connect(source, &Traffic::TrafficDataSource_Abstract::passwordRequest, this, &Traffic::TrafficDataProvider::passwordRequest);
     connect(source, &Traffic::TrafficDataSource_Abstract::passwordStorageRequest, this, &Traffic::TrafficDataProvider::passwordStorageRequest);
+    connect(source, &Traffic::TrafficDataSource_Abstract::factorWithoutPosition, this, &Traffic::TrafficDataProvider::onTrafficFactorWithoutPosition);
+    connect(source, &Traffic::TrafficDataSource_Abstract::factorWithPosition, this, &Traffic::TrafficDataProvider::onTrafficFactorWithPosition);
+    connect(source, &Traffic::TrafficDataSource_Abstract::warning, this, &Traffic::TrafficDataProvider::setWarning);
 
     auto tmp = m_dataSources.value();
     tmp.append(source);
@@ -383,35 +384,6 @@ void Traffic::TrafficDataProvider::loadConnectionInfos()
     }
 }
 
-void Traffic::TrafficDataProvider::onCurrentSourceChanged()
-{
-    // Disconnect the traffic/warning signals from all sources, so that only the
-    // current source feeds this class. The passwordRequest/passwordStorageRequest
-    // forwarding connections set up in addDataSource() must stay intact, so we
-    // disconnect the three specific signals rather than everything.
-    foreach(auto source, m_dataSources.value())
-    {
-        if (source.isNull())
-        {
-            continue;
-        }
-        disconnect(source, &Traffic::TrafficDataSource_Abstract::factorWithoutPosition, this, nullptr);
-        disconnect(source, &Traffic::TrafficDataSource_Abstract::factorWithPosition, this, nullptr);
-        disconnect(source, &Traffic::TrafficDataSource_Abstract::warning, this, nullptr);
-    }
-    if (m_currentSource.value() != nullptr)
-    {
-        connect(m_currentSource.value(), &Traffic::TrafficDataSource_Abstract::factorWithoutPosition, this, &Traffic::TrafficDataProvider::onTrafficFactorWithoutPosition);
-        connect(m_currentSource.value(), &Traffic::TrafficDataSource_Abstract::factorWithPosition, this, &Traffic::TrafficDataProvider::onTrafficFactorWithPosition);
-        connect(m_currentSource.value(), &Traffic::TrafficDataSource_Abstract::warning, this, &Traffic::TrafficDataProvider::setWarning);
-    }
-    else
-    {
-        // If there is no m_currentSource, then try in 1s to (re)connect to any
-        // traffic receiver out there.
-        QTimer::singleShot(1s, this, &Traffic::TrafficDataProvider::connectToTrafficReceiver);
-    }
-}
 
 void Traffic::TrafficDataProvider::onTrafficFactorWithoutPosition(const Traffic::TrafficFactorData_DistanceOnly &factor)
 {
