@@ -778,8 +778,9 @@ Item {
                     y: col2.y + scale.y - height
 
                     width: compassSize
-                    height: compassSize * 0.62
+                    height: compassSize * 0.74 + topHeadroom
                     property real compassSize: gridView.width * 0.5
+                    property real topHeadroom: compassSize * 0.12
 
                     visible: !Global.currentVAC.isValid
                     clip: true
@@ -787,8 +788,13 @@ Item {
 
                     Compass {
                         anchors.horizontalCenter: parent.horizontalCenter
-                        y: 0
+                        y: compassViewport.topHeadroom
                         bearing: flightMap.bearing
+                        headingBugVisible: (Navigator.remainingRouteInfo.status !== RemainingRouteInfo.NoRoute)
+                                           && Navigator.remainingRouteInfo.nextWP_TC.isFinite()
+                        headingBugCourse: Navigator.remainingRouteInfo.nextWP_TC.isFinite()
+                                          ? Navigator.remainingRouteInfo.nextWP_TC.toDEG()
+                                          : 0
                         size: compassViewport.compassSize
                     }
                 }

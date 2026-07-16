@@ -24,11 +24,26 @@ Item {
     // Aircraft true track in degrees (0 = N, positive clockwise)
     property real bearing: 0
 
+    // Heading bug (typically next-leg true course in degrees).
+    property bool headingBugVisible: false
+    property real headingBugCourse: 0
+    property real headingBugTopOverflow: size * 0.10
+
     // Overall diameter of the widget
     property real size: 120
 
     width:  size
     height: size
+
+    onBearingChanged: {
+        headingBugCanvas.requestPaint()
+        referenceBugCanvas.requestPaint()
+    }
+    onHeadingBugCourseChanged: headingBugCanvas.requestPaint()
+    onHeadingBugVisibleChanged: {
+        headingBugCanvas.requestPaint()
+        referenceBugCanvas.requestPaint()
+    }
 
     // ── Rotating rose ────────────────────────────────────────────────────────
     Item {
@@ -291,6 +306,123 @@ Item {
             ctx.arc(cx, cy, r - rimW, 0, 2 * Math.PI)
             ctx.fillStyle = shadowGrad
             ctx.fill()
+        }
+    }
+
+    // ── Blue heading bug (route-course marker) ──────────────────────────────
+    Canvas {
+        id: headingBugCanvas
+        anchors.fill: parent
+        visible: root.headingBugVisible
+
+        onPaint: {
+            const ctx = getContext("2d")
+            const cx = width / 2
+            const cy = height / 2
+            const r  = width / 2 - 2
+
+            ctx.clearRect(0, 0, width, height)
+            if (!root.headingBugVisible || r <= 0 || !isFinite(root.headingBugCourse))
+                return
+
+            const tipR = r - Math.max(1, r * 0.010)
+            const depth = Math.max(6, r * 0.100)
+            const halfW = Math.max(5, r * 0.050)
+
+            // Angle relative to screen top after rose rotation.
+            const relDeg = root.headingBugCourse - root.bearing
+            const a = (relDeg - 90) * Math.PI / 180
+
+            const tipX = cx + tipR * Math.cos(a)
+            const tipY = cy + tipR * Math.sin(a)
+
+            // Unit vectors: inward radial and tangent.
+            const inX = -Math.cos(a)
+            const inY = -Math.sin(a)
+            const tanX = -Math.sin(a)
+            const tanY =  Math.cos(a)
+
+            const baseCX = tipX + inX * depth
+            const baseCY = tipY + inY * depth
+
+            const p1X = baseCX + tanX * halfW
+            const p1Y = baseCY + tanY * halfW
+            const p2X = baseCX - tanX * halfW
+            const p2Y = baseCY - tanY * halfW
+
+            ctx.beginPath()
+            ctx.moveTo(tipX, tipY)
+            ctx.lineTo(p1X, p1Y)
+            ctx.lineTo(p2X, p2Y)
+            ctx.closePath()
+            ctx.fillStyle = "rgba(85,190,255,0.95)"
+            ctx.fill()
+            ctx.strokeStyle = "rgba(0,0,0,0.85)"
+            ctx.lineWidth = 1.2
+            ctx.stroke()
+        }
+    }
+
+    // ── Fixed black reference bug in top overflow area ──────────────────────
+    Canvas {
+        id: referenceBugCanvas
+        x: 0
+        y: -root.headingBugTopOverflow
+        width: root.width
+        height: root.height + root.headingBugTopOverflow
+        visible: root.headingBugVisible
+
+        onPaint: {
+            const ctx = getContext("2d")
+            const cx = width / 2
+            const cy = root.height / 2 + root.headingBugTopOverflow
+            const r  = root.width / 2 - 2
+
+            ctx.clearRect(0, 0, width, height)
+            if (!root.headingBugVisible || r <= 0)
+                return
+
+            const tipR = r - Math.max(1, r * 0.010)
+            const depth = Math.max(6, r * 0.100)
+            const halfW = Math.max(5, r * 0.050)
+
+            // Fixed at top center with a small outward shift; points inward.
+            const a = -Math.PI / 2
+            const rimShift = depth * 0.40
+
+            const rimX = cx + (tipR + rimShift) * Math.cos(a)
+            const rimY = cy + (tipR + rimShift) * Math.sin(a)
+
+            const inX = -Math.cos(a)
+            const inY = -Math.sin(a)
+            const tanX = -Math.sin(a)
+            const tanY =  Math.cos(a)
+
+            const tipX = rimX + inX * depth
+            const tipY = rimY + inY * depth
+            const baseCX = rimX
+            const baseCY = rimY
+
+            const p1X = baseCX + tanX * halfW
+            const p1Y = baseCY + tanY * halfW
+            const p2X = baseCX - tanX * halfW
+            const p2Y = baseCY - tanY * halfW
+
+            const metalGrad = ctx.createLinearGradient(baseCX, baseCY, tipX, tipY)
+            metalGrad.addColorStop(0.00, "rgba(28,28,28,0.96)")
+            metalGrad.addColorStop(0.45, "rgba(92,92,92,0.95)")
+            metalGrad.addColorStop(1.00, "rgba(185,185,185,0.92)")
+
+            ctx.beginPath()
+            ctx.moveTo(tipX, tipY)
+            ctx.lineTo(p1X, p1Y)
+            ctx.lineTo(p2X, p2Y)
+            ctx.closePath()
+            ctx.fillStyle = metalGrad
+            ctx.fill()
+            ctx.strokeStyle = "rgba(20,20,20,0.95)"
+            ctx.lineWidth = 1.2
+            ctx.stroke()
         }
     }
 }
