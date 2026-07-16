@@ -181,18 +181,47 @@ Item {
         }
     }
 
-    // ── Fixed aircraft symbol at center (project-native icon) ───────────────
-    Image {
+    // ── Fixed aircraft symbol at center (white fill + black outline) ───────
+    Canvas {
         id: aircraftSymbol
         anchors.centerIn: parent
         width: root.size * 0.10
         height: root.size * 0.10
 
-        source: "/icons/traffic-aircraft.svg"
-        fillMode: Image.PreserveAspectFit
-        smooth: true
-        mipmap: true
-        opacity: 0.86
+        onPaint: {
+            const ctx = getContext("2d")
+            const w = width
+            const h = height
+            if (w <= 0 || h <= 0) return
+            ctx.clearRect(0, 0, w, h)
+
+            // Simple aircraft silhouette: nose up, wings and tail.
+            ctx.beginPath()
+            ctx.moveTo(w * 0.50, h * 0.08)
+            ctx.lineTo(w * 0.56, h * 0.34)
+            ctx.lineTo(w * 0.87, h * 0.44)
+            ctx.lineTo(w * 0.87, h * 0.57)
+            ctx.lineTo(w * 0.56, h * 0.52)
+            ctx.lineTo(w * 0.56, h * 0.82)
+            ctx.lineTo(w * 0.67, h * 0.92)
+            ctx.lineTo(w * 0.67, h * 0.98)
+            ctx.lineTo(w * 0.50, h * 0.88)
+            ctx.lineTo(w * 0.33, h * 0.98)
+            ctx.lineTo(w * 0.33, h * 0.92)
+            ctx.lineTo(w * 0.44, h * 0.82)
+            ctx.lineTo(w * 0.44, h * 0.52)
+            ctx.lineTo(w * 0.13, h * 0.57)
+            ctx.lineTo(w * 0.13, h * 0.44)
+            ctx.lineTo(w * 0.44, h * 0.34)
+            ctx.closePath()
+
+            ctx.fillStyle = "rgba(255,255,255,0.96)"
+            ctx.fill()
+            ctx.strokeStyle = "rgba(0,0,0,0.90)"
+            ctx.lineWidth = Math.max(1, w * 0.06)
+            ctx.lineJoin = "round"
+            ctx.stroke()
+        }
     }
 
     // ── Metallic rim + glass lens overlay (fixed, on top of everything) ──────
@@ -210,7 +239,7 @@ Item {
             // ── Metallic bevelled rim ─────────────────────────────────────
             // Simulates a polished chrome ring lit from the top: bright at
             // 12 o'clock, mid-grey at 3/9, dark at 6 o'clock.
-            const rimW   = Math.max(2, r * 0.040)
+            const rimW   = Math.max(1, r * 0.020)
             const rimGrad = ctx.createLinearGradient(cx, cy - r, cx, cy + r)
             rimGrad.addColorStop(0.00, "rgba(255,255,255,0.75)")
             rimGrad.addColorStop(0.25, "rgba(180,180,180,0.48)")
