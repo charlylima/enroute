@@ -201,12 +201,12 @@ Item {
         }
     }
 
-    // ── Fixed aircraft symbol at center (white fill + black outline) ───────
+    // ── Fixed center marker (white dot with black outline) ──────────────────
     Canvas {
         id: aircraftSymbol
         anchors.centerIn: parent
-        width: root.size * 0.10
-        height: root.size * 0.10
+        width: root.size * 0.068
+        height: root.size * 0.068
 
         onPaint: {
             const ctx = getContext("2d")
@@ -215,31 +215,25 @@ Item {
             if (w <= 0 || h <= 0) return
             ctx.clearRect(0, 0, w, h)
 
-            // Simple aircraft silhouette: nose up, wings and tail.
-            ctx.beginPath()
-            ctx.moveTo(w * 0.50, h * 0.08)
-            ctx.lineTo(w * 0.56, h * 0.34)
-            ctx.lineTo(w * 0.87, h * 0.44)
-            ctx.lineTo(w * 0.87, h * 0.57)
-            ctx.lineTo(w * 0.56, h * 0.52)
-            ctx.lineTo(w * 0.56, h * 0.82)
-            ctx.lineTo(w * 0.67, h * 0.92)
-            ctx.lineTo(w * 0.67, h * 0.98)
-            ctx.lineTo(w * 0.50, h * 0.88)
-            ctx.lineTo(w * 0.33, h * 0.98)
-            ctx.lineTo(w * 0.33, h * 0.92)
-            ctx.lineTo(w * 0.44, h * 0.82)
-            ctx.lineTo(w * 0.44, h * 0.52)
-            ctx.lineTo(w * 0.13, h * 0.57)
-            ctx.lineTo(w * 0.13, h * 0.44)
-            ctx.lineTo(w * 0.44, h * 0.34)
-            ctx.closePath()
+            const cx = w / 2
+            const cy = h / 2
+            const radius = Math.min(w, h) * 0.33
 
-            ctx.fillStyle = "rgba(255,255,255,0.96)"
+            const dotGrad = ctx.createRadialGradient(
+                cx - radius * 0.40, cy - radius * 0.40, radius * 0.15,
+                cx,                 cy,                 radius
+            )
+            dotGrad.addColorStop(0.00, "rgba(255,255,255,0.98)")
+            dotGrad.addColorStop(0.70, "rgba(238,238,238,0.97)")
+            dotGrad.addColorStop(1.00, "rgba(190,190,190,0.96)")
+
+            ctx.beginPath()
+            ctx.arc(cx, cy, radius, 0, 2 * Math.PI)
+            ctx.fillStyle = dotGrad
             ctx.fill()
-            ctx.strokeStyle = "rgba(0,0,0,0.90)"
-            ctx.lineWidth = Math.max(1, w * 0.06)
-            ctx.lineJoin = "round"
+
+            ctx.strokeStyle = "rgba(0,0,0,0.92)"
+            ctx.lineWidth = Math.max(1, radius * 0.18)
             ctx.stroke()
         }
     }
