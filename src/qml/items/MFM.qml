@@ -781,19 +781,27 @@ Item {
                     height: compassSize * 0.74 + topHeadroom
                     property real compassSize: gridView.width * 0.5
                     property real topHeadroom: compassSize * 0.12
+                    readonly property bool trueTrackValid: PositionProvider.positionInfo.trueTrack().isFinite()
 
                     visible: !Global.currentVAC.isValid
+                    //opacity: 1 // for testing
+                    opacity: trueTrackValid ? 1 : 0
                     clip: true
                     z: 1
 
-                    Compass {
-                        readonly property bool trueTrackValid: PositionProvider.positionInfo.trueTrack().isFinite()
+                    Behavior on opacity {
+                        NumberAnimation {
+                            duration: 1000
+                            easing.type: Easing.InOutQuad
+                        }
+                    }
 
+                    Compass {
                         anchors.horizontalCenter: parent.horizontalCenter
                         y: compassViewport.topHeadroom
                         // bearing: flightMap.bearing // only for testing
-                        bearing: trueTrackValid ? flightMap.animatedTT : Number.NaN
-                        headingBugVisible: trueTrackValid
+                        bearing: compassViewport.trueTrackValid ? flightMap.animatedTT : Number.NaN
+                        headingBugVisible: compassViewport.trueTrackValid
                                            && (Navigator.remainingRouteInfo.status !== RemainingRouteInfo.NoRoute)
                                            && Navigator.remainingRouteInfo.nextWP_TC.isFinite()
                         headingBugCourse: Navigator.remainingRouteInfo.nextWP_TC.isFinite()

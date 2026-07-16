@@ -100,19 +100,19 @@ Item {
                     let tickLen, lw, col
                     if (isCard) {
                         tickLen = r * 0.115; lw = 1.7
-                        col = "rgba(255,255,255,0.92)"
+                        col = "rgba(255,255,255,0.96)"
                     } else if (is30) {
                         tickLen = r * 0.085; lw = 1.25
-                        col = "rgba(245,245,245,0.80)"
+                        col = "rgba(255,255,255,0.90)"
                     } else if (is10) {
                         tickLen = r * 0.062; lw = 1.0
-                        col = "rgba(225,225,225,0.66)"
+                        col = "rgba(255,255,255,0.82)"
                     } else if (is5) {
                         tickLen = r * 0.045; lw = 0.85
-                        col = "rgba(210,210,210,0.52)"
+                        col = "rgba(255,255,255,0.74)"
                     } else {
                         tickLen = r * 0.030; lw = 0.7
-                        col = "rgba(195,195,195,0.36)"
+                        col = "rgba(255,255,255,0.66)"
                     }
 
                     ctx.beginPath()
@@ -431,23 +431,4 @@ Item {
         }
     }
 
-    Rectangle {
-        anchors.centerIn: parent
-        width: root.size * 0.44
-        height: root.size * 0.16
-        radius: height / 2
-        color: Qt.rgba(0.06, 0.06, 0.06, 0.72)
-        border.width: 1
-        border.color: Qt.rgba(1.0, 1.0, 1.0, 0.24)
-        visible: !root.trackValid
-
-        Text {
-            anchors.centerIn: parent
-            text: "NO TRK"
-            color: Qt.rgba(1.0, 0.20, 0.20, 0.98)
-            font.pixelSize: root.size * 0.075
-            font.bold: true
-            font.family: "sans-serif"
-        }
-    }
 }
