@@ -134,6 +134,11 @@ Traffic::TrafficFactor_WithPosition::TrafficFactor_WithPosition(QObject *parent)
     m_description.setBinding([this]() {
         QStringList results;
 
+        // CallSign
+        if (!callSign().isEmpty()) {
+            results << callSign();
+        }
+
         // Show aircraft type only when no specific icon exists (generic
         // triangle is used)
         switch(type())
