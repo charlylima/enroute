@@ -20,6 +20,7 @@
 
 package de.akaflieg_freiburg.enroute;
 
+import com.github.charlylima.enrouteCL.R;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;

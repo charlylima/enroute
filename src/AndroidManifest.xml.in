@@ -2,6 +2,7 @@
 
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.github.charlylima.enrouteCL"
     android:versionName="${PROJECT_VERSION}"
     android:versionCode="${PROJECT_VERSION_CODE}0"
     android:installLocation="auto">
@@ -32,7 +33,7 @@
   <application
     android:name="org.qtproject.qt.android.bindings.QtApplication"
     android:hardwareAccelerated="true"
-    android:label="Enroute Flight Navigation"
+    android:label="EnrouteCL"
     android:requestLegacyExternalStorage="true"
     android:allowNativeHeapPointerTagging="false"
     android:allowBackup="false"
@@ -43,7 +44,7 @@
       android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density"
       android:exported="true"
       android:name="de.akaflieg_freiburg.enroute.MobileAdaptor"
-      android:label="Enroute Flight Navigation"
+      android:label="EnrouteCL"
       android:screenOrientation="unspecified"
       android:launchMode="singleInstance"
       android:showWhenLocked="true"
@@ -251,10 +252,10 @@
       android:foregroundServiceType="location"
       android:exported="false"/>
     
-    <!-- NOTE: android:authorities must match AUTHORITY in de/akaflieg_freiburg/enroute/IntentLauncher.java -->
+    <!-- NOTE: android:authorities must match AUTHORITY in de/akaflieg_freiburg/enroute/MobileAdaptor.java -->
     <provider
       android:name="androidx.core.content.FileProvider"
-      android:authorities="de.akaflieg_freiburg.enroute"
+      android:authorities="com.github.charlylima.enrouteCL"
       android:exported="false"
       android:grantUriPermissions="true">
       <meta-data
