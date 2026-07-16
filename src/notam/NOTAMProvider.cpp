@@ -488,6 +488,19 @@ QByteArray NOTAM::NOTAMProvider::computeGeoJSON() const
         }
     }
 
+    // Third pass: collect area features (polygons/circles) from NOTAM text/radius.
+    for(const auto& notamList : m_notamLists.value())
+    {
+        for(const auto& notam : notamList.notams())
+        {
+            auto areaFeature = notam.areaGeoJSON();
+            if (!areaFeature.isEmpty())
+            {
+                result.append(areaFeature);
+            }
+        }
+    }
+
     QJsonArray waypointArray;
     for(const auto& jsonObject : result)
     {

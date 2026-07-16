@@ -20,6 +20,7 @@
 
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QtMath>
 
 #include "GlobalObject.h"
 #include "GlobalSettings.h"
@@ -232,6 +233,153 @@ QString NOTAM::NOTAM::category() const
 }
 
 
+QJsonObject NOTAM::NOTAM::areaGeoJSON() const
+{
+    constexpr double maxExtentNM = 50.0;
+    constexpr double pi = 3.14159265358979323846;
+    constexpr int nPoints = 36;
+
+    // Helper lambda: build a circle polygon (36-point approximation)
+    auto buildCircleFeature = [&](const QGeoCoordinate& center, double radiusNM) -> QJsonObject
+    {
+        if (!center.isValid() || radiusNM <= 0 || radiusNM > maxExtentNM)
+        {
+            return {};
+        }
+
+        const double radiusM = radiusNM * 1852.0;
+        const double dLat = radiusM / 111320.0;
+        const double dLon = radiusM / (111320.0 * qCos(center.latitude() * pi / 180.0));
+
+        QJsonArray ring;
+        for (int i = 0; i <= nPoints; i++)
+        {
+            const double angle = 2.0 * pi * i / nPoints;
+            const double lat = center.latitude() + dLat * qSin(angle);
+            const double lon = center.longitude() + dLon * qCos(angle);
+            QJsonArray coord;
+            coord.append(lon);
+            coord.append(lat);
+            ring.append(coord);
+        }
+
+        QJsonArray rings;
+        rings.append(ring);
+
+        QJsonObject geometry;
+        geometry.insert(u"type"_s, u"Polygon"_s);
+        geometry.insert(u"coordinates"_s, rings);
+
+        QJsonObject properties;
+        properties.insert(u"TYP"_s, u"NOTAM-AREA"_s);
+        if (m_selectionCode.size() >= 3 && QStringView{m_selectionCode}.mid(1, 2).startsWith(u'R'))
+        {
+            properties.insert(u"ATYP"_s, u"R"_s);
+        }
+
+        QJsonObject feature;
+        feature.insert(u"type"_s, u"Feature"_s);
+        feature.insert(u"geometry"_s, geometry);
+        feature.insert(u"properties"_s, properties);
+        return feature;
+    };
+
+    // --- 1. Try polygon coordinate sequence: "DDMMSSN DDMMSSSE - DDMMSSN DDMMSSSE - ..." ---
+    static const QRegularExpression coordPairRE(
+        u"(\\d{6}[NS])\\s+(\\d{7}[EW])"_s);
+    static const QRegularExpression polygonRE(
+        u"(\\d{6}[NS]\\s+\\d{7}[EW])(\\s*-\\s*\\d{6}[NS]\\s+\\d{7}[EW]){2,}"_s);
+
+    auto polyMatch = polygonRE.match(m_text);
+    if (polyMatch.hasMatch())
+    {
+        const QString polyStr = polyMatch.captured(0);
+        auto coordMatches = coordPairRE.globalMatch(polyStr);
+
+        QJsonArray ring;
+        double minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
+        while (coordMatches.hasNext())
+        {
+            auto m = coordMatches.next();
+            auto coord = interpretNOTAMCoordinatesDDMMSS(m.captured(1), m.captured(2));
+            if (!coord.isValid())
+            {
+                return {};
+            }
+            minLat = qMin(minLat, coord.latitude());
+            maxLat = qMax(maxLat, coord.latitude());
+            minLon = qMin(minLon, coord.longitude());
+            maxLon = qMax(maxLon, coord.longitude());
+            QJsonArray pt;
+            pt.append(coord.longitude());
+            pt.append(coord.latitude());
+            ring.append(pt);
+        }
+
+        if (ring.size() < 3)
+        {
+            return {};
+        }
+
+        // Check extent: approximate NM span
+        const double latSpanNM = (maxLat - minLat) * 60.0;
+        const double lonSpanNM = (maxLon - minLon) * 60.0 * qCos((minLat + maxLat) / 2.0 * pi / 180.0);
+        if (latSpanNM > maxExtentNM || lonSpanNM > maxExtentNM)
+        {
+            return {};
+        }
+
+        // Close the ring if not already closed
+        if (ring.first() != ring.last())
+        {
+            ring.append(ring.first());
+        }
+
+        QJsonArray rings;
+        rings.append(ring);
+
+        QJsonObject geometry;
+        geometry.insert(u"type"_s, u"Polygon"_s);
+        geometry.insert(u"coordinates"_s, rings);
+
+        QJsonObject properties;
+        properties.insert(u"TYP"_s, u"NOTAM-AREA"_s);
+        if (m_selectionCode.size() >= 3 && QStringView{m_selectionCode}.mid(1, 2).startsWith(u'R'))
+        {
+            properties.insert(u"ATYP"_s, u"R"_s);
+        }
+
+        QJsonObject feature;
+        feature.insert(u"type"_s, u"Feature"_s);
+        feature.insert(u"geometry"_s, geometry);
+        feature.insert(u"properties"_s, properties);
+        return feature;
+    }
+
+    // --- 2. Fallback: use GeoJSON radius + coordinate for UAS, PJE, and new RA ---
+    if (m_coordinate.isValid() && m_radius.isFinite() && m_radius.toNM() > 0)
+    {
+        auto cat = category();
+        if (cat == u"NOTAM-UAS"_s || cat == u"NOTAM-PJE"_s)
+        {
+            return buildCircleFeature(m_coordinate, m_radius.toNM());
+        }
+        // For RA: only show radius if text does NOT reference a charted airspace
+        // (e.g. "ED-R 136", "LO-D 5"). Those areas are already on the map.
+        if (cat == u"NOTAM-RA"_s)
+        {
+            static const QRegularExpression chartedAreaRE(u"[A-Z]{2}-?[RDP]\\s*\\d+"_s);
+            if (!chartedAreaRE.match(m_text).hasMatch())
+            {
+                return buildCircleFeature(m_coordinate, m_radius.toNM());
+            }
+        }
+    }
+
+    return {};
+}
+
+
 QString NOTAM::NOTAM::richText() const
 {
     QStringList result;
@@ -390,6 +538,44 @@ QGeoCoordinate NOTAM::interpretNOTAMCoordinates(const QString& string)
     }
     double lon = lonD+lonM/60.0;
     if (string[10] == 'W')
+    {
+        lon *= -1.0;
+    }
+
+    return {lat, lon};
+}
+
+
+QGeoCoordinate NOTAM::interpretNOTAMCoordinatesDDMMSS(const QString& latStr, const QString& lonStr)
+{
+    if (latStr.length() != 7 || lonStr.length() != 8)
+    {
+        return {};
+    }
+
+    bool ok {false};
+    auto latD = latStr.left(2).toDouble(&ok);
+    if (!ok) { return {}; }
+    auto latM = latStr.mid(2, 2).toDouble(&ok);
+    if (!ok) { return {}; }
+    auto latS = latStr.mid(4, 2).toDouble(&ok);
+    if (!ok) { return {}; }
+
+    double lat = latD + latM/60.0 + latS/3600.0;
+    if (latStr[6] == u'S')
+    {
+        lat *= -1.0;
+    }
+
+    auto lonD = lonStr.left(3).toDouble(&ok);
+    if (!ok) { return {}; }
+    auto lonM = lonStr.mid(3, 2).toDouble(&ok);
+    if (!ok) { return {}; }
+    auto lonS = lonStr.mid(5, 2).toDouble(&ok);
+    if (!ok) { return {}; }
+
+    double lon = lonD + lonM/60.0 + lonS/3600.0;
+    if (lonStr[7] == u'W')
     {
         lon *= -1.0;
     }
