@@ -33,22 +33,6 @@ using namespace Qt::Literals::StringLiterals;
 Librarian::Librarian(QObject *parent) : QObject(parent)
 {
 
-    // This app used to store flight routes in QStandardPaths::GenericDataLocation. However, Android 11
-    // no longer allows this "Scoped Storage". We will therefore move our files from
-    // QStandardPaths::GenericDataLocation to QStandardPaths::AppDataLocation, which is still writable
-    // since we set "requestlegacystorage" in the manifest file and target Android 10. See
-    // https://developer.android.com/training/data-storage/use-cases#opt-out-in-production-app
-    auto oldlibraryPath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + u"/enroute flight navigation/flight routes"_s;
-    auto libraryPath = directory(Routes);
-    QDir const dir(oldlibraryPath);
-    foreach(auto elt, dir.entryList( QStringList(), QDir::Files))
-    {
-        if (QFile::copy(oldlibraryPath + u"/"_s + elt, libraryPath + u"/"_s + elt))
-        {
-            QFile::remove(oldlibraryPath + u"/"_s + elt);
-        }
-    }
-    dir.rmdir(oldlibraryPath);
 }
 
 
@@ -131,11 +115,11 @@ auto Librarian::getStringFromRessource(const QString &name) -> QString
         {
             version += QStringLiteral(" • GIT #")+QStringLiteral(GIT_COMMIT);
         }
-        return tr(R"html(<h3>Enroute Flight Navigation</h3>
+        return tr(R"html(<h3>EnrouteCL</h3>
 
 <p>Version %1</p>
 
-<p><strong>Enroute Flight Navigation</strong> is a free navigation app for VFR pilots, developed as a project of Akaflieg Freiburg.</p>
+<p><strong>EnrouteCL</strong> is a fork of <a href="https://github.com/charlylima/enroute">Enroute Flight Navigation</a>, a free navigation app for VFR pilots.</p>
 
 <ul style="margin-left:-25px;">
   <li>Simple, elegant and functional</li>

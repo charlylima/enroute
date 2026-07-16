@@ -7,7 +7,11 @@
 # Configure
 #
 
-configure_file(${APP_ID}.json.in ${APP_ID}.json @ONLY)
+if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${APP_ID}.json.in)
+  configure_file(${APP_ID}.json.in ${APP_ID}.json @ONLY)
+else()
+  configure_file(de.akaflieg_freiburg.enroute.json.in ${APP_ID}.json @ONLY)
+endif()
 
 
 #

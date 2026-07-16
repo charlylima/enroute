@@ -47,7 +47,7 @@ AppWindow {
     font.letterSpacing: GlobalSettings.fontSize > 15 ? 0.5 : 0.25
 
     visible: true
-    title: "Enroute Flight Navigation"
+    title: "EnrouteCL"
 
     Settings {
         property alias x: view.x
@@ -90,13 +90,13 @@ AppWindow {
                     rightPadding: 16
                     topPadding: 16+SafeInsets.top
 
-                    text: "Enroute Flight Navigation"
+                    text: "EnrouteCL"
                     color: "white"
                     font.pixelSize: 20
                     font.weight: Font.Medium
 
                     background: Rectangle {
-                        color: "teal"
+                        color: "#004492"
                     }
                 }
 
@@ -104,7 +104,7 @@ AppWindow {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 4
 
-                    color: "teal"
+                    color: "#004492"
                 }
 
                 Label { // Subtitle
@@ -114,12 +114,12 @@ AppWindow {
                     rightPadding: 16
                     Layout.preferredHeight: 20
 
-                    text: "Akaflieg Freiburg" + " • v" + Qt.application.version
+                    text: "v" + Qt.application.version
                     font.pixelSize: 16
                     color: "white"
 
                     background: Rectangle {
-                        color: "teal"
+                        color: "#004492"
                     }
                 }
 
@@ -127,7 +127,7 @@ AppWindow {
                     Layout.preferredHeight: 18
                     Layout.fillWidth: true
 
-                    color: "teal"
+                    color: "#004492"
                 }
 
                 ItemDelegate { // Aircraft
@@ -843,7 +843,7 @@ AppWindow {
 
         horizontalAlignment: Text.AlignHCenter
         background: Rectangle {
-            color: "teal"
+            color: "#004492"
             radius: 5
         }
 

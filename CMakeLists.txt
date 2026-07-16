@@ -15,7 +15,7 @@ option(QTDEPLOY "Generate and run Qt deployment scripts" OFF)
 #
 
 project(enroute VERSION 3.4.0)
-set(APP_ID de.akaflieg_freiburg.enroute)
+set(APP_ID com.github.charlylima.enrouteCL)
 set(DISPLAY_NAME "Enroute")
 math(EXPR PROJECT_VERSION_CODE 10000*${PROJECT_VERSION_MAJOR}+100*${PROJECT_VERSION_MINOR}+${PROJECT_VERSION_PATCH})
 

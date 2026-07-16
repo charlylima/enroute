@@ -34,7 +34,7 @@ public class UsbSerialHelper
     }
 
     private static final String TAG = "UsbSerialHelper";
-    private static final String ACTION_USB_PERMISSION = "de.akaflieg_freiburg.enroute.USB_PERMISSION";
+    private static final String ACTION_USB_PERMISSION = "com.github.charlylima.enrouteCL.USB_PERMISSION";
     private static Context appContext;
     private static final Map<String, ConnectionInfo> connections = new HashMap<>();
 

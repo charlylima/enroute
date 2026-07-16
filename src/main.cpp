@@ -88,12 +88,17 @@ auto main(int argc, char *argv[]) -> int
     QGuiApplication app(argc, argv);
 #else
     QApplication app(argc, argv);
-    QGuiApplication::setDesktopFileName(QStringLiteral("de.akaflieg_freiburg.enroute"));
+    QGuiApplication::setDesktopFileName(QStringLiteral("com.github.charlylima.enrouteCL"));
 #endif
-    QCoreApplication::setOrganizationName(QStringLiteral("Akaflieg Freiburg"));
-    QCoreApplication::setOrganizationDomain(QStringLiteral("akaflieg_freiburg.de"));
-    QCoreApplication::setApplicationName(QStringLiteral("enroute flight navigation"));
-    QCoreApplication::setApplicationVersion(QStringLiteral(ENROUTE_VERSION_STRING));
+    QCoreApplication::setOrganizationName(QStringLiteral(""));
+    QCoreApplication::setOrganizationDomain(QStringLiteral("github.com"));
+    QCoreApplication::setApplicationName(QStringLiteral("enrouteCL"));
+    {
+        auto version = QStringLiteral(ENROUTE_VERSION_STRING);
+        if (!QStringLiteral(GIT_COMMIT).isEmpty())
+            version += QStringLiteral(" • GIT #") + QStringLiteral(GIT_COMMIT);
+        QCoreApplication::setApplicationVersion(version);
+    }
     QGuiApplication::setWindowIcon(QIcon(u":/icons/appIcon.png"_s));
 
     // Install translators

@@ -83,7 +83,7 @@ CenteringDialog {
 
                 horizontalAlignment: Text.AlignHCenter
                 background: Rectangle {
-                    color: "teal"
+                    color: "#004492"
                     radius: 5
                 }
                 opacity: 0
