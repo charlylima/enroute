@@ -23,6 +23,7 @@ Item {
 
     // Aircraft true track in degrees (0 = N, positive clockwise)
     property real bearing: 0
+    readonly property bool trackValid: isFinite(bearing)
 
     // Heading bug (typically next-leg true course in degrees).
     property bool headingBugVisible: false
@@ -39,6 +40,10 @@ Item {
         headingBugCanvas.requestPaint()
         referenceBugCanvas.requestPaint()
     }
+    onTrackValidChanged: {
+        headingBugCanvas.requestPaint()
+        referenceBugCanvas.requestPaint()
+    }
     onHeadingBugCourseChanged: headingBugCanvas.requestPaint()
     onHeadingBugVisibleChanged: {
         headingBugCanvas.requestPaint()
@@ -51,7 +56,7 @@ Item {
         anchors.centerIn: parent
         width:  root.size
         height: root.size
-        rotation: -root.bearing
+        rotation: root.trackValid ? -root.bearing : 0
 
         Behavior on rotation {
             RotationAnimation {
@@ -313,7 +318,7 @@ Item {
     Canvas {
         id: headingBugCanvas
         anchors.fill: parent
-        visible: root.headingBugVisible
+        visible: root.headingBugVisible && root.trackValid
 
         onPaint: {
             const ctx = getContext("2d")
@@ -322,7 +327,7 @@ Item {
             const r  = width / 2 - 2
 
             ctx.clearRect(0, 0, width, height)
-            if (!root.headingBugVisible || r <= 0 || !isFinite(root.headingBugCourse))
+            if (!root.trackValid || !root.headingBugVisible || r <= 0 || !isFinite(root.headingBugCourse))
                 return
 
             const tipR = r - Math.max(1, r * 0.010)
@@ -370,7 +375,7 @@ Item {
         y: -root.headingBugTopOverflow
         width: root.width
         height: root.height + root.headingBugTopOverflow
-        visible: root.headingBugVisible
+        visible: root.headingBugVisible && root.trackValid
 
         onPaint: {
             const ctx = getContext("2d")
@@ -379,7 +384,7 @@ Item {
             const r  = root.width / 2 - 2
 
             ctx.clearRect(0, 0, width, height)
-            if (!root.headingBugVisible || r <= 0)
+            if (!root.trackValid || !root.headingBugVisible || r <= 0)
                 return
 
             const tipR = r - Math.max(1, r * 0.010)
@@ -423,6 +428,26 @@ Item {
             ctx.strokeStyle = "rgba(20,20,20,0.95)"
             ctx.lineWidth = 1.2
             ctx.stroke()
+        }
+    }
+
+    Rectangle {
+        anchors.centerIn: parent
+        width: root.size * 0.44
+        height: root.size * 0.16
+        radius: height / 2
+        color: Qt.rgba(0.06, 0.06, 0.06, 0.72)
+        border.width: 1
+        border.color: Qt.rgba(1.0, 1.0, 1.0, 0.24)
+        visible: !root.trackValid
+
+        Text {
+            anchors.centerIn: parent
+            text: "NO TRK"
+            color: Qt.rgba(1.0, 0.20, 0.20, 0.98)
+            font.pixelSize: root.size * 0.075
+            font.bold: true
+            font.family: "sans-serif"
         }
     }
 }

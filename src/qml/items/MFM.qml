@@ -787,10 +787,14 @@ Item {
                     z: 1
 
                     Compass {
+                        readonly property bool trueTrackValid: PositionProvider.positionInfo.trueTrack().isFinite()
+
                         anchors.horizontalCenter: parent.horizontalCenter
                         y: compassViewport.topHeadroom
-                        bearing: flightMap.bearing
-                        headingBugVisible: (Navigator.remainingRouteInfo.status !== RemainingRouteInfo.NoRoute)
+                        // bearing: flightMap.bearing // only for testing
+                        bearing: trueTrackValid ? flightMap.animatedTT : Number.NaN
+                        headingBugVisible: trueTrackValid
+                                           && (Navigator.remainingRouteInfo.status !== RemainingRouteInfo.NoRoute)
                                            && Navigator.remainingRouteInfo.nextWP_TC.isFinite()
                         headingBugCourse: Navigator.remainingRouteInfo.nextWP_TC.isFinite()
                                           ? Navigator.remainingRouteInfo.nextWP_TC.toDEG()
