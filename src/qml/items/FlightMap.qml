@@ -734,6 +734,38 @@ Map {
         }
 
         LayerParameter {
+            id: notamAreaFill
+
+            styleId: "notam-area-fill"
+
+            type: "fill"
+            property string source: "notams"
+            property var filter: ["all", ["==", ["get", "TYP"], "NOTAM-AREA"], ["==", ["get", "ATYP"], "R"]]
+
+            paint: {
+                "fill-color": "red",
+                "fill-opacity": 0.12
+            }
+        }
+
+        LayerParameter {
+            id: notamAreaOutline
+
+            styleId: "notam-area-outline"
+
+            type: "line"
+            property string source: "notams"
+            property var filter: ["==", ["get", "TYP"], "NOTAM-AREA"]
+
+            paint: {
+                "line-color": "red",
+                "line-width": 2,
+                "line-opacity": 0.6,
+                "line-dasharray": [1.0, 2.0]
+            }
+        }
+
+        LayerParameter {
             id: notamParam
 
             styleId: "notam-layer"
