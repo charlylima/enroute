@@ -24,6 +24,7 @@ import QtLocation
 import QtPositioning
 import QtQml
 import QtQuick
+import QtQuick as Quick
 import QtQuick.Controls
 import QtQuick.Controls.Material
 import QtQuick.Layouts
@@ -778,8 +779,9 @@ Item {
                     y: col2.y + scale.y - height
 
                     width: compassSize
-                    height: compassSize * 0.74 + topHeadroom
+                    height: compassSize * visibleCompassFraction + topHeadroom
                     property real compassSize: gridView.width * 0.5
+                    property real visibleCompassFraction: 0.22
                     property real topHeadroom: compassSize * 0.12
                     readonly property bool trueTrackValid: PositionProvider.positionInfo.trueTrack().isFinite()
 
