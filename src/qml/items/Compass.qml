@@ -30,6 +30,11 @@ Item {
     property real headingBugCourse: 0
     property real headingBugTopOverflow: size * 0.10
 
+    // Synthetic ILS guidance: normalized angular deviations in [-1, 1].
+    property bool ilsVisible: false
+    property real ilsLocalizerDeviation: 0
+    property real ilsGlideslopeDeviation: 0
+
     // Overall diameter of the widget
     property real size: 120
 
@@ -422,6 +427,51 @@ Item {
             ctx.strokeStyle = "rgba(20,20,20,0.95)"
             ctx.lineWidth = 1.2
             ctx.stroke()
+        }
+    }
+
+    Item {
+        id: ilsIndicator
+        anchors.centerIn: parent
+        width: root.size * 0.62
+        height: width
+        visible: root.ilsVisible
+
+        // Keep bars strictly inside the inner compass area.
+        readonly property real maxDeflection: width * 0.28
+        readonly property real locX: Math.max(-1, Math.min(1, root.ilsLocalizerDeviation)) * maxDeflection
+        readonly property real gsY: Math.max(-1, Math.min(1, root.ilsGlideslopeDeviation)) * maxDeflection
+
+        Rectangle {
+            anchors.centerIn: parent
+            width: parent.width * 0.46
+            height: 1
+            color: Qt.rgba(1.0, 1.0, 1.0, 0.36)
+        }
+
+        Rectangle {
+            anchors.centerIn: parent
+            width: 1
+            height: parent.height * 0.46
+            color: Qt.rgba(1.0, 1.0, 1.0, 0.36)
+        }
+
+        Rectangle {
+            width: 2
+            height: parent.height * 0.76
+            radius: 1
+            x: parent.width / 2 + parent.locX - width / 2
+            y: (parent.height - height) / 2
+            color: Qt.rgba(0.22, 0.85, 1.0, 0.96)
+        }
+
+        Rectangle {
+            width: parent.width * 0.76
+            height: 2
+            radius: 1
+            x: (parent.width - width) / 2
+            y: parent.height / 2 + parent.gsY - height / 2
+            color: Qt.rgba(0.22, 0.85, 1.0, 0.96)
         }
     }
 

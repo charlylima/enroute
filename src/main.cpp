@@ -230,6 +230,11 @@ auto main(int argc, char *argv[]) -> int
     engine->rootContext()->setContextProperty(QStringLiteral("manual_location"), MANUAL_LOCATION );
 #endif
     engine->rootContext()->setContextProperty(QStringLiteral("global"), new GlobalObject(engine) );
+
+    // Ensure SyntheticIlsManager singleton is instantiated at application startup
+    // so it connects to position updates even before QML views access its properties.
+    GlobalObject::syntheticIlsManager();
+
     engine->load(u"qrc:/qml/main.qml"_s);
 #if defined(Q_OS_ANDROID)
     QNativeInterface::QAndroidApplication::hideSplashScreen(1);

@@ -79,6 +79,7 @@ set(SOURCES
     navigation/Leg.h
     navigation/Navigator.h
     navigation/RemainingRouteInfo.h
+    navigation/SyntheticIlsManager.h
     notam/NOTAM.h
     notam/NOTAMList.h
     notam/NOTAMProvider.h
@@ -188,6 +189,7 @@ set(SOURCES
     navigation/Leg.cpp
     navigation/Navigator.cpp
     navigation/RemainingRouteInfo.cpp
+    navigation/SyntheticIlsManager.cpp
     notam/NOTAM.cpp
     notam/NOTAMList.cpp
     notam/NOTAMProvider.cpp

@@ -26,10 +26,14 @@ Item {
     property real sideTapeWidthFactor: 0.22
     property real sideTapeGapFactor: 0.03
 
+    readonly property bool ilsVisible: SyntheticIlsManager.ilsVisible
+    readonly property real ilsLocalizerDeviation: SyntheticIlsManager.ilsLocalizerDeviation
+    readonly property real ilsGlideslopeDeviation: SyntheticIlsManager.ilsGlideslopeDeviation
+
     width: compassSize
     height: compassSize * visibleCompassFraction + topHeadroom
 
-    opacity: trackValid ? 1 : 0
+    opacity: (trackValid || ilsVisible) ? 1 : 0
     z: 1
 
     Behavior on opacity {
@@ -50,6 +54,9 @@ Item {
             bearing: root.trackValid ? root.bearing : Number.NaN
             headingBugVisible: root.trackValid && root.headingBugVisible
             headingBugCourse: root.headingBugCourse
+            ilsVisible: root.ilsVisible
+            ilsLocalizerDeviation: root.ilsLocalizerDeviation
+            ilsGlideslopeDeviation: root.ilsGlideslopeDeviation
             size: root.compassSize
         }
     }

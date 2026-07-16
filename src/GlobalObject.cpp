@@ -34,6 +34,7 @@
 #include "navigation/Clock.h"
 #include "flightlog/FlightLog.h"
 #include "navigation/Navigator.h"
+#include "navigation/SyntheticIlsManager.h"
 #include "notam/NOTAMProvider.h"
 #include "notification/NotificationManager.h"
 #include "platform/FileExchange.h"
@@ -59,6 +60,7 @@ QPointer<Librarian> g_librarian {};
 QPointer<Platform::PlatformAdaptor> g_platformAdaptor {};
 QPointer<Flightlog::FlightLog> g_flightLog {};
 QPointer<Navigation::Navigator> g_navigator {};
+QPointer<Navigation::SyntheticIlsManager> g_syntheticIlsManager {};
 QPointer<NOTAM::NOTAMProvider> g_notamProvider {};
 QPointer<QNetworkAccessManager> g_networkAccessManager {};
 QPointer<Notifications::NotificationManager> g_notificationManager {};
@@ -122,6 +124,7 @@ void GlobalObject::clear()
     delete g_platformAdaptor;
     delete g_flightLog;
     delete g_navigator;
+    delete g_syntheticIlsManager;
     delete g_passwordDB;
     delete g_positionProvider;
     delete g_globalSettings;
@@ -203,6 +206,12 @@ Platform::PlatformAdaptor* GlobalObject::platformAdaptor()
 auto GlobalObject::navigator() -> Navigation::Navigator*
 {
     return allocateInternal<Navigation::Navigator>(g_navigator);
+}
+
+
+auto GlobalObject::syntheticIlsManager() -> Navigation::SyntheticIlsManager*
+{
+    return allocateInternal<Navigation::SyntheticIlsManager>(g_syntheticIlsManager);
 }
 
 

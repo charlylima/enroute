@@ -49,6 +49,7 @@ namespace Navigation
 {
 class Clock;
 class Navigator;
+class SyntheticIlsManager;
 } // namespace Navigation
 
 namespace NOTAM
@@ -214,6 +215,12 @@ public:
      * @returns Pointer to appplication-wide static instance.
      */
     Q_INVOKABLE static Navigation::Navigator* navigator();
+
+    /*! \brief Pointer to appplication-wide static Navigation::SyntheticIlsManager instance
+     *
+     * @returns Pointer to appplication-wide static instance.
+     */
+    Q_INVOKABLE static Navigation::SyntheticIlsManager* syntheticIlsManager();
 
     /*! \brief Pointer to appplication-wide static PasswordDB instance
      *
