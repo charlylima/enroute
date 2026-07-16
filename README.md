@@ -1,4 +1,20 @@
-# Enroute Flight Navigation
+# EnrouteCL
+
+**EnrouteCL** is a fork of **Enroute Flight Navigation** to try some UI changes and new features.  
+https://github.com/charlylima/enroute
+
+Changes:
+* Show NOTAM Radius on the map
+* Traffic: Always show height difference in feet
+* Traffic: Show Callsign
+
+Planned change:
+* Traffic system should accept and combine data from multiple traffic sources at the same time,  
+  e.g. ADS-L receiver via Radio and OGN via Internet connection.
+
+It follows information about original Enroute Flight Navigation Software by Akaflieg Freiburg:
+----
+https://github.com/Akaflieg-Freiburg/enroute
 
 **Enroute Flight Navigation** is a mobile flight navigation app for Android and iOS devices. The app is free, open source, 100% non-commercial and does not collect user data. 
 
