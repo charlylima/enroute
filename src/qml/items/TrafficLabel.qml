@@ -104,25 +104,14 @@ MapQuickItem {
 
         text: trafficLabel.trafficInfo.description
         textFormat: Text.StyledText
-        color: Global.trafficLabelTextColor
+        color: Global.trafficLabelBackgroundColor(trafficLabel.trafficInfo.color)
 
-        font.pixelSize: 0.8*GlobalSettings.fontSize
+        font.pixelSize: GlobalSettings.fontSize
+        font.bold: true
 
-        leftInset: -4
-        rightInset: -4
-        bottomInset: -1
-        topInset: -2
-
-        background: Rectangle {
-            border.color: Global.trafficLabelFrameColor
-            border.width: 1
-            color: Global.trafficLabelBackgroundColor(trafficLabel.trafficInfo.color)
-
-            Behavior on color {
-                ColorAnimation { duration: 400 }
-                enabled: trafficLabel.trafficInfo.animate
-            }
-            radius: 4
+        Behavior on color {
+            ColorAnimation { duration: 400 }
+            enabled: trafficLabel.trafficInfo.animate
         }
     }
 }

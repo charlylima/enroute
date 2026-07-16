@@ -151,7 +151,7 @@ Item {
     readonly property color trafficLabelTextColor:  GlobalSettings.nightMode ? "#e0e0e0" : "black"
     readonly property color trafficLabelFrameColor: GlobalSettings.nightMode ? "#e0e0e0" : "black"
     function trafficLabelBackgroundColor(alarmColor) {
-        return GlobalSettings.nightMode ? Qt.darker(alarmColor, 2.5) : Qt.lighter(alarmColor, 1.9)
+        return GlobalSettings.nightMode ? Qt.lighter(alarmColor, 1.6) : Qt.darker(alarmColor, 1.3)
     }
 
 
