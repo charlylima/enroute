@@ -606,6 +606,7 @@ qt_add_qml_module(${PROJECT_NAME}
     qml/items/DegreeInput.qml
     qml/items/ElevationInput.qml
     qml/items/Compass.qml
+    qml/items/InstrumentsOverlay.qml
     qml/items/SpeedTape.qml
     qml/items/AltitudeTape.qml
     qml/items/FlightMap.qml

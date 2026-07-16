@@ -773,69 +773,23 @@ Item {
                     }
                 }
 
-                Item {
-                    id: compassViewport
+                InstrumentsOverlay {
+                    id: compassOverlay
                     x: col2.x + (col2.width - width) / 2
                     y: col2.y + scale.y - height
 
-                    width: compassSize
-                    height: compassSize * visibleCompassFraction + topHeadroom
-                    property real compassSize: gridView.width * 0.5
-                    property real visibleCompassFraction: 0.70
-                    property real topHeadroom: compassSize * 0.12
-                    readonly property bool trueTrackValid: PositionProvider.positionInfo.trueTrack().isFinite()
+                    compassSize: gridView.width * 0.5
+                    visibleCompassFraction: 0.70
 
                     visible: !Global.currentVAC.isValid
-                    //opacity: 1 // for testing
-                    opacity: trueTrackValid ? 1 : 0
-                    clip: true
-                    z: 1
 
-                    Behavior on opacity {
-                        NumberAnimation {
-                            duration: 1000
-                            easing.type: Easing.InOutQuad
-                        }
-                    }
-
-                    Compass {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        y: compassViewport.topHeadroom
-                        // bearing: flightMap.bearing // only for testing
-                        bearing: compassViewport.trueTrackValid ? flightMap.animatedTT : Number.NaN
-                        headingBugVisible: compassViewport.trueTrackValid
-                                           && (Navigator.remainingRouteInfo.status !== RemainingRouteInfo.NoRoute)
-                                           && Navigator.remainingRouteInfo.nextWP_TC.isFinite()
-                        headingBugCourse: Navigator.remainingRouteInfo.nextWP_TC.isFinite()
-                                          ? Navigator.remainingRouteInfo.nextWP_TC.toDEG()
-                                          : 0
-                        size: compassViewport.compassSize
-                    }
-                }
-
-                SpeedTape {
-                    id: speedTape
-                    x: compassViewport.x - width - compassViewport.compassSize * 0.03
-                    y: compassViewport.y + compassViewport.topHeadroom
-                    width: compassViewport.compassSize * 0.22
-                    height: compassViewport.height - compassViewport.topHeadroom
-                    visible: compassViewport.visible
-                    opacity: compassViewport.opacity
-                    z: compassViewport.z
-                    speedText: Navigator.aircraft.horizontalSpeedToString(PositionProvider.positionInfo.groundSpeed())
-                }
-
-                AltitudeTape {
-                    id: altitudeTape
-                    x: compassViewport.x + compassViewport.width + compassViewport.compassSize * 0.03
-                    y: compassViewport.y + compassViewport.topHeadroom
-                    width: compassViewport.compassSize * 0.22
-                    height: compassViewport.height - compassViewport.topHeadroom
-                    visible: compassViewport.visible
-                    opacity: compassViewport.opacity
-                    z: compassViewport.z
-                    altitudeValid: PositionProvider.pressureAltitude.isFinite() && !PositionProvider.pressureAltitude.isNegative()
-                    altitudeFeet: altitudeValid ? Math.round(PositionProvider.pressureAltitude.toFeet()) : 0
+                    trackValid: PositionProvider.positionInfo.trueTrack().isFinite()
+                    bearing: flightMap.animatedTT
+                    headingBugVisible: (Navigator.remainingRouteInfo.status !== RemainingRouteInfo.NoRoute)
+                                       && Navigator.remainingRouteInfo.nextWP_TC.isFinite()
+                    headingBugCourse: Navigator.remainingRouteInfo.nextWP_TC.isFinite()
+                                      ? Navigator.remainingRouteInfo.nextWP_TC.toDEG()
+                                      : 0
                 }
             }
 
