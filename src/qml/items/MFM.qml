@@ -771,6 +771,27 @@ Item {
                         }
                     }
                 }
+
+                Item {
+                    id: compassViewport
+                    x: col2.x + (col2.width - width) / 2
+                    y: col2.y + scale.y - height
+
+                    width: compassSize
+                    height: compassSize * 0.62
+                    property real compassSize: gridView.width * 0.5
+
+                    visible: !Global.currentVAC.isValid
+                    clip: true
+                    z: 1
+
+                    Compass {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        y: 0
+                        bearing: flightMap.bearing
+                        size: compassViewport.compassSize
+                    }
+                }
             }
 
             ColumnLayout {
