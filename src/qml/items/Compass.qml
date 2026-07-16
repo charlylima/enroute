@@ -369,7 +369,7 @@ Item {
         y: -root.headingBugTopOverflow
         width: root.width
         height: root.height + root.headingBugTopOverflow
-        visible: root.headingBugVisible && root.trackValid
+        visible: root.trackValid
 
         onPaint: {
             const ctx = getContext("2d")
@@ -378,7 +378,7 @@ Item {
             const r  = root.width / 2 - 2
 
             ctx.clearRect(0, 0, width, height)
-            if (!root.trackValid || !root.headingBugVisible || r <= 0)
+            if (!root.trackValid || r <= 0)
                 return
 
             const tipR = r - Math.max(1, r * 0.010)
