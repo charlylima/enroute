@@ -170,23 +170,6 @@ Traffic::TrafficFactor_WithPosition::TrafficFactor_WithPosition(QObject *parent)
         if (vDist().isFinite())
         {
             QString result;
-            if (vDist() > Units::Distance::fromM(500))
-            {
-                result = u"++"_s;
-            }
-            else if (vDist() > Units::Distance::fromM(400))
-            {
-                result = u"+"_s;
-            }
-            else if  (vDist() < Units::Distance::fromM(-500))
-            {
-                result = u"--"_s;
-            }
-            else if  (vDist() < Units::Distance::fromM(-400))
-            {
-                result = u"-"_s;
-            }
-            else
             {
                 result = GlobalObject::navigator()->aircraft().verticalDistanceToString(vDist(), true);
                 auto climbRateMPS = m_positionInfo.value().verticalSpeed().toMPS();
