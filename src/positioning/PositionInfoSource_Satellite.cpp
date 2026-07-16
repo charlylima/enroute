@@ -27,7 +27,8 @@ Positioning::PositionInfoSource_Satellite::PositionInfoSource_Satellite(QObject 
 {
     if (source != nullptr) {
         source->setPreferredPositioningMethods(QGeoPositionInfoSource::AllPositioningMethods);
-        source->setUpdateInterval(1000);
+        // Request faster updates; the backend may clamp this to device/provider limits.
+        source->setUpdateInterval(250);
 
         QString const sName = source->sourceName();
         if (sName.isEmpty()) {

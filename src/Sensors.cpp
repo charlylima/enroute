@@ -42,7 +42,8 @@ Sensors::Sensors(QObject *parent) : GlobalObject(parent)
 
     auto* timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &Sensors::updateSensorReadings);
-    timer->setInterval(1s);
+    // Request faster sampling; actual rate depends on sensor/backend support.
+    timer->setInterval(250ms);
     timer->setSingleShot(false);
     timer->start();
 
