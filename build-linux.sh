@@ -5,7 +5,7 @@ set -e  # Exit on error
 
 QT_PATH="/opt/Qt/6.9.3/gcc_64"
 QT_CMAKE="${QT_PATH}/bin/qt-cmake"
-BUILD_DIR="build-linux"
+BUILD_DIR="build-linux-CL"
 
 mkdir -p "${BUILD_DIR}"
 cd "${BUILD_DIR}"

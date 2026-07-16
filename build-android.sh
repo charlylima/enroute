@@ -61,10 +61,10 @@ echo ""
 echo "=========================================="
 echo "Building libzip..."
 echo "=========================================="
-rm -rf build-android-libzip
+rm -rf build-android-libzip-CL
 $QT_ROOT_DIR/bin/qt-cmake \
     -S 3rdParty/libzip \
-    -B build-android-libzip \
+    -B build-android-libzip-CL \
     -G Ninja \
     -DBUILD_DOC=OFF \
     -DBUILD_EXAMPLES=OFF \
@@ -76,38 +76,38 @@ $QT_ROOT_DIR/bin/qt-cmake \
     -DENABLE_ZSTD=OFF \
     -DCMAKE_INSTALL_PREFIX=$QT_ROOT_DIR
 
-cmake --build build-android-libzip
-cmake --install build-android-libzip
-rm -rf build-android-libzip
+cmake --build build-android-libzip-CL
+cmake --install build-android-libzip-CL
+rm -rf build-android-libzip-CL
 
 echo ""
 echo "=========================================="
 echo "Building enroute for Android..."
 echo "=========================================="
-rm -rf build-android-debug
+rm -rf build-android-CL
 $QT_ROOT_DIR/bin/qt-cmake \
     -S . \
-    -B build-android-debug \
+    -B build-android-CL \
     -G Ninja \
     -DCMAKE_BUILD_TYPE:STRING=Debug
 
-cmake --build build-android-debug
-cmake --build build-android-debug --target apk
-cp build-android-debug/src/android-build/build/outputs/apk/debug/android-build-debug.apk .
+cmake --build build-android-CL
+cmake --build build-android-CL --target apk
+cp build-android-CL/src/android-build/build/outputs/apk/debug/android-build-debug.apk enrouteCL.apk
 
 echo ""
 echo "=========================================="
 echo "Build Complete!"
 echo "=========================================="
 echo "APK location:"
-ls -lh android-build-debug.apk 2>/dev/null || echo "APK not found - check build log"
+ls -lh enrouteCL.apk 2>/dev/null || echo "APK not found - check build log"
 echo "=========================================="
 
 # Copy APK to Windows share
 WIN_SHARE="/mnt/c/Users/user/win-share"
 if [ -d "$WIN_SHARE" ]; then
-    cp android-build-debug.apk "$WIN_SHARE/"
-    echo "APK copied to $WIN_SHARE/android-build-debug.apk"
+    cp enrouteCL.apk "$WIN_SHARE/"
+    echo "APK copied to $WIN_SHARE/enrouteCL.apk"
 else
     echo "WARNING: Windows share not found at $WIN_SHARE — skipping copy"
 fi
