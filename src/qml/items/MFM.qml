@@ -781,7 +781,7 @@ Item {
                     width: compassSize
                     height: compassSize * visibleCompassFraction + topHeadroom
                     property real compassSize: gridView.width * 0.5
-                    property real visibleCompassFraction: 0.22
+                    property real visibleCompassFraction: 0.70
                     property real topHeadroom: compassSize * 0.12
                     readonly property bool trueTrackValid: PositionProvider.positionInfo.trueTrack().isFinite()
 
@@ -811,6 +811,31 @@ Item {
                                           : 0
                         size: compassViewport.compassSize
                     }
+                }
+
+                SpeedTape {
+                    id: speedTape
+                    x: compassViewport.x - width - compassViewport.compassSize * 0.03
+                    y: compassViewport.y + compassViewport.topHeadroom
+                    width: compassViewport.compassSize * 0.22
+                    height: compassViewport.height - compassViewport.topHeadroom
+                    visible: compassViewport.visible
+                    opacity: compassViewport.opacity
+                    z: compassViewport.z
+                    speedText: Navigator.aircraft.horizontalSpeedToString(PositionProvider.positionInfo.groundSpeed())
+                }
+
+                AltitudeTape {
+                    id: altitudeTape
+                    x: compassViewport.x + compassViewport.width + compassViewport.compassSize * 0.03
+                    y: compassViewport.y + compassViewport.topHeadroom
+                    width: compassViewport.compassSize * 0.22
+                    height: compassViewport.height - compassViewport.topHeadroom
+                    visible: compassViewport.visible
+                    opacity: compassViewport.opacity
+                    z: compassViewport.z
+                    altitudeValid: PositionProvider.pressureAltitude.isFinite() && !PositionProvider.pressureAltitude.isNegative()
+                    altitudeFeet: altitudeValid ? Math.round(PositionProvider.pressureAltitude.toFeet()) : 0
                 }
             }
 
