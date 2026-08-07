@@ -15,11 +15,6 @@ on:
     branches: [ main, develop ]
     paths-ignore: *paths-ignore
   workflow_call:
-    inputs:
-      build-type:
-        description: "CMAKE_BUILD_TYPE to pass to the enroute build (Debug or Release)"
-        type: string
-        default: Debug
     outputs:
       apk-artifact-name:
         description: "Name of the uploaded APK artifact"
@@ -117,7 +112,7 @@ jobs:
           -S enroute \
           -B build-enroute\
           -G Ninja\
-          -DCMAKE_BUILD_TYPE:STRING=${{ inputs.build-type || 'Debug' }}
+          -DCMAKE_BUILD_TYPE:STRING=Debug
         cmake --build build-enroute
     - name: Upload to developerBuilds
       if: github.event_name == 'push' && github.ref == 'refs/heads/develop'

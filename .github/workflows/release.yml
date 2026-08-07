@@ -11,8 +11,6 @@ permissions:
 jobs:
   build-android-release:
     uses: ./.github/workflows/android.yml
-    with:
-      build-type: Release
 
   publish-release:
     needs: build-android-release
