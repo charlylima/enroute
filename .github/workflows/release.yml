@@ -1,0 +1,127 @@
+name: Android Release
+
+on:
+  push:
+    tags:
+      - "enrouteCL-*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-android-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout enroute
+        uses: actions/checkout@v4
+        with:
+          path: enroute
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Checkout enrouteDependencies
+        uses: actions/checkout@v4
+        with:
+          path: enrouteDependencies
+          repository: Akaflieg-Freiburg/enrouteDependencies
+          submodules: recursive
+
+      - name: Install Qt for Android arm64
+        uses: jurplel/install-qt-action@v4
+        with:
+          aqtversion: ==3.1.*
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-android'
+          modules: 'qt5compat qtconnectivity qthttpserver qtimageformats qtlocation qtmultimedia qtpositioning qtsensors qtserialport qtshadertools qtspeech qtwebsockets qtwebview'
+          target: 'android'
+          version: '6.9.3'
+          arch: 'android_arm64_v8a'
+
+      - name: Set up OpenJDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup ninja
+        uses: seanmiddleditch/gha-setup-ninja@v5
+
+      - name: Install Additional Software
+        run: |
+          echo "y" | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "platform-tools" "build-tools;36.0.0"
+          echo "y" | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager "ndk;27.2.12479018"
+          echo ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/27.2.12479018 >> $GITHUB_ENV
+
+      - name: Remove Unwanted Software
+        run: |
+          echo "y" | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --uninstall "platforms;android-33-ext4" "platforms;android-33-ext5" "platforms;android-34-ext8" "platforms;android-35-ext14"
+
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: android-release
+          max-size: "500M"
+
+      - name: Compile and Install libzip
+        run: |
+          export QT_HOST_PATH="$(readlink -f "$QT_ROOT_DIR/../gcc_64")"
+          $QT_ROOT_DIR/bin/qt-cmake \
+            -S enrouteDependencies/libzip \
+            -B build-libzip \
+            -G Ninja \
+            -DBUILD_DOC=OFF \
+            -DBUILD_EXAMPLES=OFF \
+            -DBUILD_REGRESS=OFF \
+            -DBUILD_SHARED_LIBS=OFF \
+            -DBUILD_TOOLS=OFF \
+            -DENABLE_BZIP2=OFF \
+            -DENABLE_LZMA=OFF \
+            -DENABLE_ZSTD=OFF \
+            -DCMAKE_INSTALL_PREFIX=$QT_ROOT_DIR
+          cmake --build build-libzip
+          cmake --install build-libzip
+          rm -rf build-libzip
+
+      - name: Compile and Install maplibre-native-qt
+        run: |
+          export QT_HOST_PATH="$(readlink -f "$QT_ROOT_DIR/../gcc_64")"
+          $QT_ROOT_DIR/bin/qt-cmake \
+            -S enrouteDependencies/maplibre-native-qt \
+            -B build-maplibre-native-qt \
+            -G Ninja \
+            -DBUILD_TESTING=OFF \
+            -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
+            -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
+            -DCMAKE_PREFIX_PATH=$QT_ROOT_DIR \
+            -DCMAKE_INSTALL_PREFIX=$QT_ROOT_DIR
+          cmake --build build-maplibre-native-qt
+          cmake --install build-maplibre-native-qt
+          rm -rf build-maplibre-native-qt
+
+      - name: Compile Enroute
+        run: |
+          export QT_HOST_PATH="$(readlink -f "$QT_ROOT_DIR/../gcc_64")"
+          $QT_ROOT_DIR/bin/qt-cmake \
+            -S enroute \
+            -B build-enroute \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-enroute
+
+      - name: Find APK
+        id: find_apk
+        run: |
+          APK_PATH=$(find enroute -path '*android-build*/build/outputs/apk/*/*.apk' | head -n 1)
+          echo "apk_path=$APK_PATH" >> "$GITHUB_OUTPUT"
+          echo "Found APK: $APK_PATH"
+
+      - name: Create GitHub Release and upload APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          files: ${{ steps.find_apk.outputs.apk_path }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
