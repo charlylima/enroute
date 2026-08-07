@@ -52,7 +52,7 @@ jobs:
       uses: seanmiddleditch/gha-setup-ninja@v5
     - name: Install Additional Software
       run: |
-        echo "y" | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager "platforms;android-34" "platform-tools" "build-tools;34.0.0"
+        echo "y" | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "platform-tools" "build-tools;36.0.0"
         echo "y" | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager "ndk;27.2.12479018"
         echo ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/27.2.12479018 >> $GITHUB_ENV
     - name: Remove Unwanted Software
