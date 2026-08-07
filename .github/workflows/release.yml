@@ -30,8 +30,10 @@ jobs:
         id: find_apk
         run: |
           APK_PATH=$(find apk -name '*.apk' | head -n 1)
-          echo "apk_path=$APK_PATH" >> "$GITHUB_OUTPUT"
           echo "Found APK: $APK_PATH"
+          RENAMED_PATH="apk/${{ github.ref_name }}.apk"
+          cp "$APK_PATH" "$RENAMED_PATH"
+          echo "apk_path=$RENAMED_PATH" >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release and upload APK
         uses: softprops/action-gh-release@v2
