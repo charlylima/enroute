@@ -14,6 +14,8 @@ Planned change:
 * Traffic system should accept and combine data from multiple traffic sources at the same time,  
   e.g. ADS-L receiver via Radio and OGN via Internet connection.
 
+You can use the great [Obtainium](https://github.com/ImranR98/Obtainium/releases) software on Android to get updates for releases on github.
+
 It follows information about original Enroute Flight Navigation Software by Akaflieg Freiburg:
 ----
 https://github.com/Akaflieg-Freiburg/enroute
