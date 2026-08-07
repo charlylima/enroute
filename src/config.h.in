@@ -26,3 +26,5 @@ using namespace Qt::Literals::StringLiterals;
 #define ENROUTE_VERSION_STRING "${PROJECT_VERSION}"
 #define GIT_COMMIT "${GIT_COMMIT}"
 #define GIT_BRANCH "${GIT_BRANCH}"
+#define GIT_DATE "${GIT_DATE}"
+#define GIT_TAG "${GIT_TAG}"

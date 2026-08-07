@@ -111,6 +111,14 @@ auto Librarian::getStringFromRessource(const QString &name) -> QString
     if (name == u":text/info_enroute.html"_s)
     {
         QString version(QStringLiteral(ENROUTE_VERSION_STRING));
+        if (!QStringLiteral(GIT_TAG).isEmpty())
+        {
+            version += QStringLiteral(" • TAG ")+QStringLiteral(GIT_TAG);
+        }
+        if (!QStringLiteral(GIT_DATE).isEmpty())
+        {
+            version += QStringLiteral(" • DATE ")+QStringLiteral(GIT_DATE);
+        }
         if (!QStringLiteral(GIT_COMMIT).isEmpty())
         {
             version += QStringLiteral(" • GIT #")+QStringLiteral(GIT_COMMIT);

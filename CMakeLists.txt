@@ -125,11 +125,26 @@ if (EXISTS ${CMAKE_SOURCE_DIR}/.git)
         OUTPUT_STRIP_TRAILING_WHITESPACE
         )
     message("Currently working with git commit from ${GIT_DATE}")
+
+    # Get the tag that points at the current commit, if any
+    execute_process(
+        COMMAND git describe --tags --exact-match
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE GIT_TAG
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET
+        RESULT_VARIABLE GIT_TAG_RESULT
+        )
+    if (NOT GIT_TAG_RESULT EQUAL 0)
+        set(GIT_TAG "")
+    endif()
+    message("Currently working with git tag ${GIT_TAG}")
 else()
     message("Not working from a GIT directory")
     set(GIT_BRANCH "")
     set(GIT_COMMIT "")
     set(GIT_DATE "")
+    set(GIT_TAG "")
 endif()
 
 
