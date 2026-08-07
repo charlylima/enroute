@@ -16,7 +16,7 @@ option(QTDEPLOY "Generate and run Qt deployment scripts" OFF)
 
 project(enroute VERSION 4.0.0)
 set(APP_ID com.github.charlylima.enrouteCL)
-set(DISPLAY_NAME "Enroute")
+set(DISPLAY_NAME "EnrouteCL")
 math(EXPR PROJECT_VERSION_CODE 10000*${PROJECT_VERSION_MAJOR}+100*${PROJECT_VERSION_MINOR}+${PROJECT_VERSION_PATCH})
 
 # GCC 15+ enables -Wsfinae-incomplete by default; it fires for every forward-declared
