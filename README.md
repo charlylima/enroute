@@ -9,6 +9,7 @@ Changes:
 * Traffic: Show Callsign
 * Traffic: Always show height difference in feet
 * Traffic Label: Remove Background
+* Compass
 
 Planned change:
 * Traffic system should accept and combine data from multiple traffic sources at the same time,  

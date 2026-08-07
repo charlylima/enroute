@@ -24,6 +24,7 @@ import QtLocation
 import QtPositioning
 import QtQml
 import QtQuick
+import QtQuick as Quick
 import QtQuick.Controls
 import QtQuick.Controls.Material
 import QtQuick.Layouts
@@ -769,6 +770,46 @@ Item {
                             }
 
                         }
+                    }
+                }
+
+                Item {
+                    id: compassViewport
+                    x: col2.x + (col2.width - width) / 2
+                    y: col2.y + scale.y - height
+
+                    width: compassSize
+                    height: compassSize * visibleCompassFraction + topHeadroom
+                    property real compassSize: gridView.width * 0.5
+                    property real visibleCompassFraction: 0.22
+                    property real topHeadroom: compassSize * 0.12
+                    readonly property bool trueTrackValid: PositionProvider.positionInfo.trueTrack().isFinite()
+
+                    visible: !Global.currentVAC.isValid
+                    //opacity: 1 // for testing
+                    opacity: trueTrackValid ? 1 : 0
+                    clip: true
+                    z: 1
+
+                    Behavior on opacity {
+                        NumberAnimation {
+                            duration: 1000
+                            easing.type: Easing.InOutQuad
+                        }
+                    }
+
+                    Compass {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        y: compassViewport.topHeadroom
+                        // bearing: flightMap.bearing // only for testing
+                        bearing: compassViewport.trueTrackValid ? flightMap.animatedTT : Number.NaN
+                        headingBugVisible: compassViewport.trueTrackValid
+                                           && (Navigator.remainingRouteInfo.status !== RemainingRouteInfo.NoRoute)
+                                           && Navigator.remainingRouteInfo.nextWP_TC.isFinite()
+                        headingBugCourse: Navigator.remainingRouteInfo.nextWP_TC.isFinite()
+                                          ? Navigator.remainingRouteInfo.nextWP_TC.toDEG()
+                                          : 0
+                        size: compassViewport.compassSize
                     }
                 }
             }
