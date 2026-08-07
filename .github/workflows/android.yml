@@ -14,12 +14,25 @@ on:
   pull_request:
     branches: [ main, develop ]
     paths-ignore: *paths-ignore
+  workflow_call:
+    inputs:
+      build-type:
+        description: "CMAKE_BUILD_TYPE to pass to the enroute build (Debug or Release)"
+        type: string
+        default: Debug
+    outputs:
+      apk-artifact-name:
+        description: "Name of the uploaded APK artifact"
+        value: ${{ jobs.build.outputs.apk-artifact-name }}
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
-    
+
+    outputs:
+      apk-artifact-name: ${{ steps.find_apk.outputs.artifact_name }}
+
     steps:
     - name: Checkout enroute
       uses: actions/checkout@v4
@@ -104,7 +117,7 @@ jobs:
           -S enroute \
           -B build-enroute\
           -G Ninja\
-          -DCMAKE_BUILD_TYPE:STRING=Debug
+          -DCMAKE_BUILD_TYPE:STRING=${{ inputs.build-type || 'Debug' }}
         cmake --build build-enroute
     - name: Upload to developerBuilds
       if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
@@ -113,3 +126,16 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       working-directory: enroute
+    - name: Find APK
+      id: find_apk
+      run: |
+        APK_PATH=$(find build-enroute -path '*android-build*/build/outputs/apk/*/*.apk' | head -n 1)
+        echo "apk_path=$APK_PATH" >> "$GITHUB_OUTPUT"
+        echo "artifact_name=android-apk" >> "$GITHUB_OUTPUT"
+        echo "Found APK: $APK_PATH"
+    - name: Upload APK artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ steps.find_apk.outputs.artifact_name }}
+        path: ${{ steps.find_apk.outputs.apk_path }}
+        retention-days: 1
