@@ -1,6 +1,6 @@
 # EnrouteCL
 
-**EnrouteCL** is a development fork of **Enroute Flight Navigation** by Akaflieg Freiburg to try some UI changes and new features.  
+**EnrouteCL** is a development fork of **Enroute Flight Navigation** to try some UI changes and new features.  
 It is alpha of beta quality and might be unstable.  
 https://github.com/charlylima/enroute
 
