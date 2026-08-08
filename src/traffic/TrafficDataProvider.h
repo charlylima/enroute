@@ -497,9 +497,6 @@ private slots:
     // Load connection infos from file and create connections
     void loadConnectionInfos();
 
-    // Called if one of the sources indicates a heartbeat change
-    void onCurrentSourceChanged();
-
     // Called if one of the sources reports traffic (position known)
     void onTrafficFactorWithPosition(const Traffic::TrafficFactorData_WithPosition& factor);
 
@@ -546,7 +543,6 @@ private:
     QList<Traffic::TrafficDataSource_Abstract*> computeDataSources();
 
     QProperty<QPointer<Traffic::TrafficDataSource_Abstract>> m_currentSource;
-    QPropertyNotifier m_currentSourceNotifier;
     QPointer<Traffic::TrafficDataSource_Abstract> computeCurrentSource();
 
     QProperty<bool> m_currentSourceIsInternetService;
