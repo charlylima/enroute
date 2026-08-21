@@ -18,6 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
     steps:
       - name: Download APK artifact
         uses: actions/download-artifact@v4
@@ -25,11 +29,43 @@ jobs:
           name: ${{ needs.build-android-release.outputs.apk-artifact-name }}
           path: apk
 
-      - name: Find APK
-        id: find_apk
+      - name: Decode Android signing key
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > enroute-release.jks
+          echo "ANDROID_KEYSTORE_PATH=$GITHUB_WORKSPACE/enroute-release.jks" >> "$GITHUB_ENV"
+        shell: bash
+
+      - name: Sign APK with release key
+        id: sign_apk
         run: |
           APK_PATH=$(find apk -name '*.apk' | head -n 1)
           echo "Found APK: $APK_PATH"
+
+          BUILD_TOOLS_DIR=$(ls -d "$ANDROID_HOME"/build-tools/* 2>/dev/null | sort | tail -n 1)
+          if [ -z "$BUILD_TOOLS_DIR" ]; then
+            echo "No Android build-tools found in $ANDROID_HOME"
+            exit 1
+          fi
+
+          cp "$APK_PATH" "$GITHUB_WORKSPACE/release-unsigned.apk"
+          "$BUILD_TOOLS_DIR/zipalign" -p -f -v 4 "$GITHUB_WORKSPACE/release-unsigned.apk" "$GITHUB_WORKSPACE/release-aligned.apk"
+          "$BUILD_TOOLS_DIR/apksigner" sign \
+            --ks "$ANDROID_KEYSTORE_PATH" \
+            --ks-pass env:ANDROID_KEYSTORE_PASSWORD \
+            --key-pass env:ANDROID_KEY_PASSWORD \
+            --ks-key-alias "$ANDROID_KEY_ALIAS" \
+            --out "$GITHUB_WORKSPACE/release-signed.apk" \
+            "$GITHUB_WORKSPACE/release-aligned.apk"
+          "$BUILD_TOOLS_DIR/apksigner" verify --print-certs "$GITHUB_WORKSPACE/release-signed.apk"
+          rm -f "$ANDROID_KEYSTORE_PATH" "$GITHUB_WORKSPACE/release-unsigned.apk" "$GITHUB_WORKSPACE/release-aligned.apk"
+
+          echo "signed_apk_path=$GITHUB_WORKSPACE/release-signed.apk" >> "$GITHUB_OUTPUT"
+
+      - name: Find APK
+        id: find_apk
+        run: |
+          APK_PATH="${{ steps.sign_apk.outputs.signed_apk_path }}"
+          echo "Signed APK: $APK_PATH"
           RENAMED_PATH="apk/${{ github.ref_name }}.apk"
           cp "$APK_PATH" "$RENAMED_PATH"
           echo "apk_path=$RENAMED_PATH" >> "$GITHUB_OUTPUT"
