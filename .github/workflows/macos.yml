@@ -1,5 +1,7 @@
 name: Compile on MacOS
 
+run-name: macOS Build - ${{ github.event.head_commit.message }}
+
 on:
   push:
     branches: [ develop ]
@@ -27,12 +29,6 @@ jobs:
         path: enroute
         submodules: recursive
         fetch-depth: 0
-    - name: Checkout Enroute Dependencies
-      uses: actions/checkout@v4
-      with:
-        path: enrouteDependencies
-        repository: Akaflieg-Freiburg/enrouteDependencies
-        submodules: recursive
     - name: Set up macOS
       uses: actions/setup-python@v4
       with:

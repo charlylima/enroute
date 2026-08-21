@@ -420,7 +420,12 @@ target_precompile_headers(${PROJECT_NAME}
     <QQmlEngine>
 )
 
-# Install (the executable itself is installed by the shared rule near the end of this file)
+# Copy MapLibre QML plugins to executable directory for development builds so we do not
+# need to set QML2_IMPORT_PATH and QT_PLUGIN_PATH during local development.
+copy_maplibre_plugins_to_target(${PROJECT_NAME})
+
+# Install the executable and the documentation bundle.
+install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdParty/enrouteManual DESTINATION ${CMAKE_INSTALL_DOCDIR})
 endif()
 
@@ -470,6 +475,12 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         Qt6::WebView
         Qt6::Widgets
     )
+    get_target_property(_isImported qtgeoservices_maplibre IMPORTED)
+    if(_isImported)
+        qmaplibre_location_setup_plugins(${PROJECT_NAME})
+    else()
+        message(STATUS "MapLibre plugins built in same tree - skipping plugin setup for macOS")
+    endif()
 endif()
 
 
@@ -513,7 +524,12 @@ if (IOS)
     )
     set_source_files_properties(
         PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-    qmaplibre_location_setup_plugins(${PROJECT_NAME})
+    get_target_property(_isImported qtgeoservices_maplibre IMPORTED)
+    if(_isImported)
+        qmaplibre_location_setup_plugins(${PROJECT_NAME})
+    else()
+        message(STATUS "MapLibre plugins built in same tree - skipping plugin setup for iOS")
+    endif()
     target_include_directories(${PROJECT_NAME}
         PRIVATE
         ios/mapLibreDependencies

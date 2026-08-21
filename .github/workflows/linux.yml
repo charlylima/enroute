@@ -1,5 +1,7 @@
 name: Compile on Linux
 
+run-name: Linux Build - ${{ github.event.head_commit.message }}
+
 on:
   push:
     branches: [ develop ]
@@ -27,12 +29,6 @@ jobs:
         path: enroute
         submodules: recursive
         fetch-depth: 0
-    - name: Checkout Enroute Dependencies
-      uses: actions/checkout@v4
-      with:
-        path: enrouteDependencies
-        repository: Akaflieg-Freiburg/enrouteDependencies
-        submodules: recursive
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
@@ -51,20 +47,6 @@ jobs:
       uses: hendrikmuhs/ccache-action@v1.2
       with:
         key: linux
-    - name: Compile and Install maplibre-native-qt
-      run: |
-        $QT_ROOT_DIR/bin/qt-cmake \
-          -S enrouteDependencies/maplibre-native-qt \
-          -B build-maplibre-native-qt \
-          -G Ninja \
-          -DMLN_QT_WITH_INTERNAL_ICU=ON \
-          -DBUILD_TESTING=OFF \
-          -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
-          -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
-          -DCMAKE_PREFIX_PATH=$QT_ROOT_DIR \
-          -DCMAKE_INSTALL_PREFIX=$QT_ROOT_DIR
-        cmake --build build-maplibre-native-qt
-        cmake --install build-maplibre-native-qt
     - name: Compile Enroute Flight Navigation
       run: |
         cmake \

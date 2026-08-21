@@ -1,5 +1,7 @@
 name: Compile on Android
 
+run-name: Android Build - ${{ github.event.head_commit.message }}
+
 on:
   push:
     branches: [ develop ]
@@ -27,12 +29,6 @@ jobs:
         path: enroute
         submodules: recursive
         fetch-depth: 0
-    - name: Checkout enrouteDependencies
-      uses: actions/checkout@v4
-      with:
-        path: enrouteDependencies
-        repository: Akaflieg-Freiburg/enrouteDependencies
-        submodules: recursive
     - name: Install Qt for Android arm64
       uses: jurplel/install-qt-action@v4
       with:
@@ -62,7 +58,7 @@ jobs:
       uses: hendrikmuhs/ccache-action@v1.2
       with:
         key: android
-        max-size: "500M"  # Limit cache size (default is 2G)  
+        max-size: "500M"  # Limit cache size (default is 2G)
     - name: Compile and Install libzip
       run: |
         export QT_HOST_PATH="$(readlink -f "$QT_ROOT_DIR/../gcc_64")"

@@ -35,3 +35,12 @@
 [submodule "3rdParty/spriteGenerator"]
 	path = 3rdParty/spriteGenerator
 	url = https://github.com/Akaflieg-Freiburg/spriteGenerator.git
+[submodule "3rdParty/maplibre-native-qt"]
+	path = 3rdParty/maplibre-native-qt
+	url = https://github.com/maplibre/maplibre-native-qt.git
+[submodule "3rdParty/zlib"]
+	path = 3rdParty/zlib
+	url = https://github.com/madler/zlib.git
+[submodule "3rdParty/bzip2"]
+	path = 3rdParty/bzip2
+	url = https://github.com/libarchive/bzip2.git

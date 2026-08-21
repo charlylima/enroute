@@ -1,5 +1,7 @@
 name: API Documentation
 
+run-name: API Docs - ${{ github.event.head_commit.message }}
+
 on:
   push:
     branches: [ develop ]

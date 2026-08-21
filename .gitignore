@@ -7,6 +7,7 @@ build-android-debug/
 build-linux/
 build-macos/
 .gradle/
+enrouteInstallation/
 
 # Doxygen generated documentation
 doc/APIdoc
@@ -33,3 +34,7 @@ CMakeLists.txt.user
 generatedSources/.bundle
 generatedSources/rubyStuff
 generatedSources/vendor
+
+# MapLibre
+.qmlls.ini
+vendor/
