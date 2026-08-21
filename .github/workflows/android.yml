@@ -63,7 +63,7 @@ jobs:
       run: |
         export QT_HOST_PATH="$(readlink -f "$QT_ROOT_DIR/../gcc_64")"
         $QT_ROOT_DIR/bin/qt-cmake \
-          -S enrouteDependencies/libzip \
+          -S 3rdParty/libzip \
           -B build-libzip \
           -G Ninja  \
           -DBUILD_DOC=OFF \
@@ -82,7 +82,7 @@ jobs:
       run: |
         export QT_HOST_PATH="$(readlink -f "$QT_ROOT_DIR/../gcc_64")"
         $QT_ROOT_DIR/bin/qt-cmake \
-          -S enrouteDependencies/maplibre-native-qt \
+          -S 3rdParty/maplibre-native-qt \
           -B build-maplibre-native-qt \
           -G Ninja \
           -DBUILD_TESTING=OFF \

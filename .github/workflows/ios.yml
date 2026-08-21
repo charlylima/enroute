@@ -61,7 +61,7 @@ jobs:
       run: |
         $QT_ROOT_DIR/bin/qt-cmake \
           -G Ninja  \
-          -S enrouteDependencies/bzip2 \
+          -S 3rdParty/bzip2 \
           -B build-bzip2-iOS \
           -DENABLE_APP=OFF \
           -DENABLE_DOCS=OFF \
@@ -75,7 +75,7 @@ jobs:
       run: |
         $QT_ROOT_DIR/bin/qt-cmake \
           -G Ninja  \
-          -S enrouteDependencies/zlib \
+          -S 3rdParty/zlib \
           -B build-zlib-iOS \
           -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
           -DCMAKE_INSTALL_PREFIX=$QT_ROOT_DIR
@@ -84,7 +84,7 @@ jobs:
     - name: Compile and Install libzip
       run: |
         $QT_ROOT_DIR/bin/qt-cmake \
-          -S enrouteDependencies/libzip \
+          -S 3rdParty/libzip \
           -B build-libzip \
           -G Ninja  \
           -DBUILD_DOC=OFF \
@@ -102,7 +102,7 @@ jobs:
     - name: Compile and Install maplibre-native-qt
       run: |
         $QT_ROOT_DIR/bin/qt-cmake \
-          -S enrouteDependencies/maplibre-native-qt-flat \
+          -S 3rdParty/maplibre-native-qt-flat \
           -B build-maplibre-native-qt \
           -G Ninja \
           -DBUILD_TESTING=OFF \

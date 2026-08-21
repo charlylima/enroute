@@ -7,6 +7,14 @@ set(_SAVED_CMAKE_INSTALL_RPATH_USE_LINK_PATH "${CMAKE_INSTALL_RPATH_USE_LINK_PAT
 set(_SAVED_CMAKE_MACOSX_RPATH "${CMAKE_MACOSX_RPATH}")
 set(_SAVED_PKG_CONFIG_RPATH "${PKG_CONFIG_RPATH}")
 
+# Silence warnings from vendored third‑party dependencies while keeping the app's own
+# source tree warning-free. This applies only within 3rdParty and its subdirectories.
+if(MSVC)
+    set_property(DIRECTORY PROPERTY COMPILE_OPTIONS "/W0")
+else()
+    set_property(DIRECTORY PROPERTY COMPILE_OPTIONS "-w")
+endif()
+
 #
 # Function to add a subdirectory with RPATH isolation
 #
